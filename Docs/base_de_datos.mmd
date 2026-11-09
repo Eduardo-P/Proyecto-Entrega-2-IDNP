@@ -1,0 +1,96 @@
+erDiagram
+    %% ===== RELACIONES (las dibujadas en el esquema) =====
+    student        ||--o{ student_enrollment : "student_id"
+    course_catalog ||--o{ student_enrollment : "course_catalog_id"
+    professor      ||--o{ course_catalog     : "professor_id"
+    course         ||--o{ course_catalog     : "course_id"
+    post           ||--o{ comment            : "post_id"
+
+    %% ===== TABLAS =====
+    student {
+        uuid        student_id  PK "NOT NULL"
+        text        firstname      "NOT NULL"
+        text        surname1       "NOT NULL"
+        text        token_msg      "NULL"
+        timestamptz created_at     "NOT NULL"
+        text        surname2       "NULL"
+        text        email          "NULL"
+        text        codigo         "NULL"
+    }
+
+    student_enrollment {
+        uuid        student_id        PK, FK "NOT NULL, ref student.student_id"
+        timestamptz created_at               "NOT NULL"
+        text        course_catalog_id PK, FK "NOT NULL, ref course_catalog.course_catalog_id"
+    }
+
+    course_catalog {
+        uuid       professor_id      FK "NOT NULL, ref professor.professor_id"
+        group_type group_type           "NULL, tipo personalizado"
+        course_type course_type         "NULL, tipo personalizado"
+        text       semester             "NOT NULL"
+        text       course_catalog_id PK "NOT NULL"
+        text       course_id         FK "NOT NULL, ref course.course_id"
+        text       class_code           "NULL"
+        bool       class_code_enable    "NULL"
+        int2       status               "NULL"
+    }
+
+    professor {
+        uuid        professor_id PK "NOT NULL"
+        timestamptz created_at      "NOT NULL"
+        text        firstname       "NOT NULL"
+        text        surname1        "NOT NULL"
+        text        surname2        "NULL"
+        text        email           "NULL"
+    }
+
+    course {
+        text        course_id  PK "NOT NULL"
+        timestamptz created_at    "NOT NULL"
+        text        name          "NOT NULL"
+        text        code          "NULL"
+    }
+
+    post {
+        int8        post_id           PK "NOT NULL, IDENTITY"
+        timestamptz created_at           "NOT NULL"
+        uuid        author_id            "NOT NULL"
+        text        course_catalog_id    "NULL"
+        text        title                "NULL"
+        text        content              "NULL"
+        bool        allow_comments       "NULL"
+        timestamp   trigger_timestamp    "NULL"
+        int2        author_type          "NOT NULL"
+        bool        is_private           "NOT NULL"
+        int8        post_id_ref          "NULL"
+        text        author_name          "NULL"
+        text        email                "NULL"
+        uuid        receiver_private     "NULL"
+    }
+
+    comment {
+        int8        comment_id     PK "NOT NULL, IDENTITY"
+        timestamptz created_at        "NOT NULL"
+        int8        post_id        FK "NOT NULL, ref post.post_id"
+        uuid        author_id         "NOT NULL"
+        int2        author_type       "NOT NULL"
+        text        content           "NULL"
+        int8        comment_id_ref    "NULL"
+        int2        review_status     "NULL"
+        bool        is_private        "NOT NULL"
+        text        author_name       "NULL"
+        text        email             "NULL"
+    }
+
+    user_profile {
+        timestamptz created_at      "NOT NULL"
+        text        firstname       "NULL"
+        text        surname         "NULL"
+        text        email           "NULL"
+        int2        status          "NULL"
+        int2        user_type       "NULL"
+        uuid        user_profile_id PK "NOT NULL"
+        bool        is_full_profile "NOT NULL"
+        text        short_name      "NULL"
+    }

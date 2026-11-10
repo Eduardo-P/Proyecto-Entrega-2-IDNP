@@ -11,6 +11,7 @@ import com.erns.alertauni.data.model.StudentEntity
 import com.erns.alertauni.data.repository.AnnounceRepository
 import com.erns.alertauni.data.repository.ContactRepository
 import com.erns.alertauni.data.repository.StudentRepository
+import com.erns.alertauni.domain.manager.DataStoreHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class ContactViewModel @Inject constructor(
     private val contactRepository: ContactRepository,
     private val studentRepository: StudentRepository,
-    private val announceRepository: AnnounceRepository
+    private val announceRepository: AnnounceRepository,
+    private val dataStoreHelper: DataStoreHelper
 ) : ViewModel() {
     private val TAG = "ContactViewModel"
     private val _students = MutableStateFlow<List<StudentEntity>>(emptyList())
@@ -32,7 +34,14 @@ class ContactViewModel @Inject constructor(
     val studentEnrollmentList: StateFlow<List<StudentEnrollment>> =
         _studentEnrollmentList.asStateFlow()
 
+    // Nombre del docente en sesión (antes estaba escrito a mano en TeacherContactScreen).
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username
+
     init {
+        viewModelScope.launch {
+            _username.value = dataStoreHelper.getFirstname() + " " + dataStoreHelper.getSurname()
+        }
         getCourses()
     }
 

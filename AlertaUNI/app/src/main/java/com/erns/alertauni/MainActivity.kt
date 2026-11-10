@@ -42,7 +42,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AlertaUNITheme {
-                MainAppNavigation()
+                // Antes se invocaba MainAppNavigation() dos veces (fuera y dentro del Scaffold),
+                // lo que creaba dos NavHost superpuestos.
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize()

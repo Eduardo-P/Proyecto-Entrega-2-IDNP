@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,8 +99,10 @@ fun TeacherContactScreen(
         )
     }
 
+    val username = viewModel.username.collectAsState()
+
     TeacherContactScreenLayout(
-        "Ernesto Suarez",
+        username.value,
         "Contactos",
         courses.value,
         students.value,

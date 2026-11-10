@@ -1,7 +1,6 @@
 package com.erns.alertauni.ui.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -28,9 +27,24 @@ private val LightColorScheme = lightColorScheme(
 
 
     primary = MyPrimaryColor,
+    onPrimary = MyPrimaryForegroundColor,
+    primaryContainer = MySecondaryColor,
+    onPrimaryContainer = MyPrimaryColor,
     secondary = MySecondaryColor,
+    onSecondary = MyPrimaryColor,
+    secondaryContainer = MySelectedColor,      // indicador de la NavigationBar y chips
+    onSecondaryContainer = MyPrimaryColor,
     background = MyBackgroundColor,
+    onBackground = MyForegroundColor,
     surface = MySurfaceColor,
+    onSurface = MyForegroundColor,
+    onSurfaceVariant = MyMutedForegroundColor,
+    surfaceVariant = MyMutedColor,
+    surfaceContainer = MySurfaceColor,         // fondo de NavigationBar
+    surfaceContainerLow = MySurfaceColor,
+    surfaceContainerHigh = MySurfaceColor,
+    outline = MyMutedForegroundColor,
+    outlineVariant = MyBorderColor,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -45,9 +59,10 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun AlertaUNITheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // La app usa siempre la paleta de marca en modo claro: los tokens My*Color son fijos
+    // y el color dinámico (Android 12+) pintaba FAB y barra con el fondo de pantalla.
+    darkTheme: Boolean = false,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

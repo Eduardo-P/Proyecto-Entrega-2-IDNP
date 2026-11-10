@@ -255,7 +255,8 @@ class PostViewModel @Inject constructor(
             grupos = grupos,
             resumen = if (filtro.tieneCriterios) resumen(visibles.size, filtro) else null,
             avisoArchivados = if (filtro.archivados) {
-                "$archivados ${if (archivados == 1) "anuncio archivado" else "anuncios archivados"} · no aparecen en el muro principal"
+                if (archivados == 1) "1 anuncio archivado · no aparece en el muro principal"
+                else "$archivados anuncios archivados · no aparecen en el muro principal"
             } else null
         )
     }

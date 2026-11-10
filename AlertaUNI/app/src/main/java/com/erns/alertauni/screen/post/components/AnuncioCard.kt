@@ -252,7 +252,7 @@ fun AnuncioCard(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.semantics {
-                                contentDescription = "${post.countComments} comentarios" + if (cerrados) ", cerrados" else ""
+                                contentDescription = comentariosTexto(post.countComments) + if (cerrados) ", cerrados" else ""
                             }
                         ) {
                             Icon(

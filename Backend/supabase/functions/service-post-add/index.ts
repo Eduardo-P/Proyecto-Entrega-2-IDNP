@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { authProfile } from '@shared/auth2.ts'
+import { getCourseCatalogIDs } from '@shared/tools.ts'
 
 serve(async (req: Request) => {
   try {
@@ -31,6 +32,10 @@ serve(async (req: Request) => {
     
     // 1. Recuperamos los datos del usuario autenticado
     const { user, user_type, supabase } = await authProfile(req)
+
+    // CORREGIDO: courseCatalogIDs se usaba sin declararse (ReferenceError al publicar).
+    // Se obtiene igual que en service-posts.
+    const courseCatalogIDs = await getCourseCatalogIDs(user_type, user.id, supabase)
 
     if (courseCatalogIDs == null){
         return new Response(JSON.stringify({ code: "NO_COURSE_CATALOG",message:"No courses in catalog" }), { status: 404 })
@@ -90,11 +95,11 @@ serve(async (req: Request) => {
     )
 
   } catch (err) {
-        // Si el error es la respuesta HTTP que lanzamos, la retornamos directo al cliente (Android)
-        if (error instanceof Response) {
-        return error;
+        // CORREGIDO: el bloque usaba `error` en lugar de `err`.
+        if (err instanceof Response) {
+        return err;
         }
         // Por si ocurre otro tipo de error inesperado en el código
-        return new Response(JSON.stringify({ error: error.message }), { status: 401 })
+        return new Response(JSON.stringify({ error: err.message }), { status: 401 })
   }
 })

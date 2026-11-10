@@ -60,4 +60,26 @@ class MigracionesTest {
         db.query("SELECT COUNT(*) FROM post_extra").use { c -> c.moveToFirst(); assertEquals(1, c.getInt(0)) }
         db.query("SELECT COUNT(*) FROM demo_post").use { c -> c.moveToFirst(); assertEquals(0, c.getInt(0)) }
     }
+
+    @Test
+    fun migracion4a5_creaTablaDeBorradores() {
+        helper.createDatabase(nombreDb, 4).apply {
+            execSQL("INSERT INTO notificaciones (cursoId, mensaje, fecha) VALUES ('INF-01', 'Hola', '2026-05-31 10:00:00')")
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(nombreDb, 5, true, AppDatabase.MIGRATION_4_5)
+        db.query("SELECT COUNT(*) FROM notificaciones").use { c -> c.moveToFirst(); assertEquals(1, c.getInt(0)) }
+        db.query("SELECT COUNT(*) FROM drafts").use { c -> c.moveToFirst(); assertEquals(0, c.getInt(0)) }
+    }
+
+    /** Un usuario con la app original (v2) actualiza directamente a la versión final. */
+    @Test
+    fun migracionCompleta2a5_conservaNotificaciones() {
+        helper.createDatabase(nombreDb, 2).apply {
+            execSQL("INSERT INTO notificaciones (cursoId, mensaje, fecha) VALUES ('INF-01', 'Hola', '2026-05-31 10:00:00')")
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(nombreDb, 5, true, *AppDatabase.MIGRACIONES)
+        db.query("SELECT mensaje FROM notificaciones").use { c -> c.moveToFirst(); assertEquals("Hola", c.getString(0)) }
+    }
 }

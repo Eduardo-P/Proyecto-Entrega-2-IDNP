@@ -1,5 +1,7 @@
 package com.erns.alertauni.domain.manager
 
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.Flow
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -96,6 +98,10 @@ class DataStoreHelper @Inject constructor(
             preferences[USER_EMAIL] = email
         }
     }
+
+    /** Correo de la cuenta en sesión como Flow (identifica la cuenta de los borradores). */
+    val emailFlow: Flow<String>
+        get() = dataStore.data.map { it[USER_EMAIL] ?: "" }.distinctUntilChanged()
 
     suspend fun getEmail(): String {
         return dataStore.data.map { preferences ->

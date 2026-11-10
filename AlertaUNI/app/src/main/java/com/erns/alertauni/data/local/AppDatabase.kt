@@ -17,6 +17,7 @@ import com.erns.alertauni.data.model.NotificacionEntity
  * - v2: `notificaciones` (original).
  * - v3: `post_extra` (SIMULADO: prioridad, archivado, comentarios y destinatario).
  * - v4: `demo_post` y `demo_comment` (SIMULADO: backend local del modo demo).
+ * - v5: `drafts` (borradores locales por cuenta, Tarea 3).
  *
  * Cada cambio de versión tiene una migración real: nunca se usa
  * `fallbackToDestructiveMigration`, para no borrar las notificaciones guardadas.
@@ -24,14 +25,16 @@ import com.erns.alertauni.data.model.NotificacionEntity
 @Database(
     entities = [
         NotificacionEntity::class, PostExtraEntity::class,
-        DemoPostEntity::class, DemoCommentEntity::class
+        DemoPostEntity::class, DemoCommentEntity::class,
+        DraftEntity::class
     ],
-    version = 4
+    version = 5
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificacionDao(): NotificacionDao
     abstract fun postExtraDao(): PostExtraDao
     abstract fun demoDao(): DemoDao
+    abstract fun draftDao(): DraftDao
 
     companion object {
         const val NOMBRE = "notificaciones-db"
@@ -64,7 +67,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRACIONES = arrayOf(MIGRATION_2_3, MIGRATION_3_4)
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `drafts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`cuenta` TEXT NOT NULL, `privado` INTEGER NOT NULL, `cursoId` TEXT, `cursoCodigo` TEXT, " +
+                        "`estudianteId` TEXT, `estudianteNombre` TEXT, `prioridad` INTEGER NOT NULL, " +
+                        "`titulo` TEXT NOT NULL, `contenido` TEXT NOT NULL, `permitirComentarios` INTEGER NOT NULL, " +
+                        "`creadoEn` INTEGER NOT NULL, `editadoEn` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_drafts_cuenta` ON `drafts` (`cuenta`)")
+            }
+        }
+
+        val MIGRACIONES = arrayOf(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 
         @Volatile
         private var INSTANCE: AppDatabase? = null

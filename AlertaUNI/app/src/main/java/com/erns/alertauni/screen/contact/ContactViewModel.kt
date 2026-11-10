@@ -4,11 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.erns.alertauni.data.model.CourseCatalogRequest
-import com.erns.alertauni.data.model.PostPrivateRequest
 import com.erns.alertauni.data.model.PostPrivateResponse
 import com.erns.alertauni.data.model.StudentEnrollment
 import com.erns.alertauni.data.model.StudentEntity
-import com.erns.alertauni.data.repository.AnnounceRepository
 import com.erns.alertauni.data.repository.ContactRepository
 import com.erns.alertauni.data.repository.StudentRepository
 import com.erns.alertauni.domain.manager.DataStoreHelper
@@ -23,7 +21,6 @@ import javax.inject.Inject
 class ContactViewModel @Inject constructor(
     private val contactRepository: ContactRepository,
     private val studentRepository: StudentRepository,
-    private val announceRepository: AnnounceRepository,
     private val dataStoreHelper: DataStoreHelper
 ) : ViewModel() {
     private val TAG = "ContactViewModel"
@@ -64,16 +61,6 @@ class ContactViewModel @Inject constructor(
                 _students.value = it
             }.onFailure {
                 Log.d(TAG, it.message.toString())
-            }
-        }
-    }
-
-    fun addPostPrivate(postPrivateRequest: PostPrivateRequest) {
-        viewModelScope.launch {
-            announceRepository.addPostPrivate(postPrivateRequest).onSuccess {
-                Log.d(TAG, "Success: ${it.toString()}")
-            }.onFailure {
-                Log.d(TAG, "Failure: ${it.toString()}")
             }
         }
     }

@@ -54,6 +54,7 @@ fun PostScreen(
     onClickComment: (String) -> Unit,
     snackbarHostState: SnackbarHostState,
     onFabActionReady: (() -> Unit) -> Unit,
+    onNuevoAnuncio: () -> Unit,
     viewModel: PostViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -61,21 +62,9 @@ fun PostScreen(
     val cursos by viewModel.cursos.collectAsState()
     val usuario by viewModel.username.collectAsState()
     val resaltado by viewModel.resaltado.collectAsState()
-    val catalogo by viewModel.catalogCourses.collectAsState()
-    var mostrarDialogo by remember { mutableStateOf(false) }
 
-    // Transitorio: el FAB abre el diálogo original hasta que exista el formulario único.
-    onFabActionReady { mostrarDialogo = true }
-    if (mostrarDialogo && catalogo.isNotEmpty()) {
-        AddPostDialog(
-            onDismiss = { mostrarDialogo = false },
-            onClickNewPost = { id, codigo, _, titulo, contenido ->
-                mostrarDialogo = false
-                viewModel.publicarRapido(id, codigo, titulo, contenido)
-            },
-            catalogCourses = catalogo
-        )
-    }
+    // El FAB «Nuevo anuncio» abre el formulario único (ruta propia).
+    onFabActionReady(onNuevoAnuncio)
 
     // Snackbars: confirmaciones, errores y «Deshacer» al archivar.
     LaunchedEffect(Unit) {

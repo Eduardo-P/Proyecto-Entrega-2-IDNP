@@ -54,7 +54,7 @@ object DemoData {
                 surname = apellido,
                 email = "${nombre.lowercase()}.$i@demo.unsa.edu.pe"
             )
-        }.sortedBy { it.surname }
+        }
     }
 
     fun catalogo(): List<CatalogCourseEntity> =

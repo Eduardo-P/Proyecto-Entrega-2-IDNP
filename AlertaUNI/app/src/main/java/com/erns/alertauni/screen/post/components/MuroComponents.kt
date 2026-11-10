@@ -94,7 +94,12 @@ fun MuroHeader(
 }
 
 @Composable
-fun CampoBusqueda(texto: String, onTexto: (String) -> Unit) {
+fun CampoBusqueda(
+    texto: String,
+    onTexto: (String) -> Unit,
+    placeholder: String = "Buscar por título o contenido",
+    fondo: Color = MySurfaceColor
+) {
     val foco = LocalFocusManager.current
     BasicTextField(
         value = texto,
@@ -109,14 +114,14 @@ fun CampoBusqueda(texto: String, onTexto: (String) -> Unit) {
                 Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .background(MySurfaceColor, RoundedCornerShape(24.dp))
+                    .background(fondo, RoundedCornerShape(24.dp))
                     .padding(start = 14.dp, end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(Icons.Filled.Search, contentDescription = null, tint = MyMutedForegroundColor)
                 Box(Modifier.weight(1f).padding(start = 10.dp)) {
                     if (texto.isEmpty()) {
-                        Text("Buscar por título o contenido", style = AuText.Input, color = MyMutedForegroundColor)
+                        Text(placeholder, style = AuText.Input, color = MyMutedForegroundColor)
                     }
                     campo()
                 }

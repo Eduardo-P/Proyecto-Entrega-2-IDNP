@@ -41,6 +41,13 @@ import com.erns.alertauni.screen.login.LoginScreen
 import com.erns.alertauni.screen.login.ProfileScreen
 import com.erns.alertauni.screen.post.PostCommentScreen
 import com.erns.alertauni.screen.post.PostScreen
+import com.erns.alertauni.screen.post.PostViewModel
+import com.erns.alertauni.screen.post.nuevo.NuevoAnuncioScreen
+import com.erns.alertauni.screen.post.nuevo.NuevoAnuncioViewModel
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @Composable
@@ -79,6 +86,9 @@ fun MainAppNavigation(navController: NavHostController = rememberNavController()
         MainMenuScreen(userTypeSelected.value)
     }
 }
+
+private const val RESULTADO_POST_ID = "publicado_post_id"
+private const val RESULTADO_MENSAJE = "publicado_mensaje"
 
 @Composable
 fun MainMenuScreen(userType: String) {
@@ -144,7 +154,9 @@ fun MainMenuScreen(userType: String) {
             }
         },
         bottomBar = {
-            NavigationBar {
+            // La barra inferior solo se ve en las pestañas principales; el formulario y
+            // los comentarios son pantallas de detalle con flecha atrás (como en Figma).
+            if (items.any { it.route == currentDestination }) NavigationBar {
                 val currentDestination =
                     navController.currentBackStackEntryAsState().value?.destination
                 items.forEach { screen ->
@@ -169,13 +181,47 @@ fun MainMenuScreen(userType: String) {
             startDestination = RouteMainMenu.Posts.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(RouteMainMenu.Posts.route) {
+            composable(RouteMainMenu.Posts.route) { entry ->
+                val postViewModel: PostViewModel = hiltViewModel()
+                // Resultado del formulario: recarga, resalta el anuncio nuevo y confirma (mq23).
+                val publicado by entry.savedStateHandle
+                    .getStateFlow<Int?>(RESULTADO_POST_ID, null).collectAsState()
+                LaunchedEffect(publicado) {
+                    publicado?.let { id ->
+                        postViewModel.onPublicado(id, entry.savedStateHandle[RESULTADO_MENSAJE] ?: "Anuncio publicado")
+                        entry.savedStateHandle[RESULTADO_POST_ID] = null
+                    }
+                }
                 PostScreen(
                     onClickComment = { postId ->
                         navController.navigate(RouteScreen.Comment.route + "/$postId")
                     },
                     snackbarHostState = snackbarHostState,
-                    onFabActionReady = { fabAction.value = it }
+                    onFabActionReady = { fabAction.value = it },
+                    onNuevoAnuncio = { navController.navigate(RouteScreen.NuevoAnuncio.crear()) },
+                    viewModel = postViewModel
+                )
+            }
+            composable(
+                route = RouteScreen.NuevoAnuncio.route + RouteScreen.NuevoAnuncio.ARGS,
+                arguments = listOf(
+                    navArgument(NuevoAnuncioViewModel.ARG_CURSO) { type = NavType.StringType; defaultValue = "" },
+                    navArgument(NuevoAnuncioViewModel.ARG_ESTUDIANTE) { type = NavType.StringType; defaultValue = "" }
+                )
+            ) {
+                NuevoAnuncioScreen(
+                    onCerrar = { navController.popBackStack() },
+                    onPublicado = { id, mensaje ->
+                        // El resultado vuelve al muro aunque se haya abierto desde Contactos.
+                        navController.getBackStackEntry(RouteMainMenu.Posts.route).savedStateHandle.apply {
+                            set(RESULTADO_MENSAJE, mensaje)
+                            set(RESULTADO_POST_ID, id)
+                        }
+                        navController.navigate(RouteMainMenu.Posts.route) {
+                            popUpTo(RouteMainMenu.Posts.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
             composable(
@@ -197,7 +243,11 @@ fun MainMenuScreen(userType: String) {
             }
 
             composable(RouteMainMenu.TeacherContacts.route) {
-                TeacherContactScreen()
+                TeacherContactScreen(
+                    onNuevoPrivado = { cursoId, estudianteId ->
+                        navController.navigate(RouteScreen.NuevoAnuncio.crear(cursoId, estudianteId))
+                    }
+                )
             }
             composable(RouteMainMenu.StudentContacts.route) {
                 StudentContactScreen()

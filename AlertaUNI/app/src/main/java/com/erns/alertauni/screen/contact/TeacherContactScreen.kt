@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.erns.alertauni.data.model.CourseCatalogRequest
-import com.erns.alertauni.data.model.PostPrivateRequest
 import com.erns.alertauni.data.model.StudentEnrollment
 import com.erns.alertauni.data.model.StudentEntity
 import com.erns.alertauni.screen.common.SearchBoxComponent
@@ -46,13 +45,13 @@ import com.erns.alertauni.ui.theme.MySurfaceColor
 
 @Composable
 fun TeacherContactScreen(
+    /** Atajo: abre el formulario único con el curso y el estudiante ya elegidos. */
+    onNuevoPrivado: (cursoId: String, estudianteId: String) -> Unit,
     viewModel: ContactViewModel = hiltViewModel(),
 ) {
     val courses = remember { mutableStateOf<List<StudentEnrollment>>(emptyList()) }
     val students = remember { mutableStateOf<List<StudentEntity>>(emptyList()) }
-    val studentSelected = remember { mutableStateOf<StudentEntity?>(null) }
     val courseSelected = remember { mutableStateOf<String?>(null) }
-    val showAddDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.studentEnrollmentList.collect { it ->
@@ -72,31 +71,10 @@ fun TeacherContactScreen(
         }
     }
 
-    val onClickNewPost: (String, String, String) -> Unit =
-        { studentId, titlePost, contentPost ->
-            showAddDialog.value = false
-            viewModel.addPostPrivate(
-                PostPrivateRequest(
-                    courseSelected.value!!,
-                    titlePost,
-                    contentPost,
-                    studentId,
-                    true
-                )
-            )
-        }
-
-    val onClickAddComment: (StudentEntity) -> Unit = {
-        studentSelected.value = it
-        showAddDialog.value = true
-    }
-
-    if (showAddDialog.value) {
-        AddCommentPrivateDialog(
-            onDismiss = { showAddDialog.value = false },
-            studentSelected.value!!,
-            onClickNewPost = onClickNewPost,
-        )
+    // Antes abría un diálogo propio de "Anuncio privado" (otro flujo, sin prioridad ni
+    // confirmación). Ahora lleva al mismo formulario único que el muro.
+    val onClickAddComment: (StudentEntity) -> Unit = { estudiante ->
+        onNuevoPrivado(estudiante.course_catalog_id, estudiante.student_id)
     }
 
     val username = viewModel.username.collectAsState()

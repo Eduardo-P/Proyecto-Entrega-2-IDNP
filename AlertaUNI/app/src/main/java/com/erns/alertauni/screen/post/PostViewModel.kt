@@ -150,32 +150,6 @@ class PostViewModel @Inject constructor(
         _resaltado.value = null
     }
 
-    // ---------------- Publicación rápida (diálogo original) ----------------
-    // Transitorio: el FAB sigue abriendo AddPostDialog hasta que exista el formulario único.
-
-    private val _catalogCourses = MutableStateFlow<List<com.erns.alertauni.data.model.CatalogCourseEntity>>(emptyList())
-    val catalogCourses: StateFlow<List<com.erns.alertauni.data.model.CatalogCourseEntity>> = _catalogCourses.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            repository.getCourseCatalog().onSuccess { _catalogCourses.value = it }
-        }
-    }
-
-    fun publicarRapido(courseCatalogId: String, courseCode: String, titulo: String, contenido: String) {
-        viewModelScope.launch {
-            repository.publish(
-                com.erns.alertauni.data.model.NuevoAnuncioRequest(
-                    courseCatalogId = courseCatalogId, courseCode = courseCode,
-                    title = titulo, content = contenido, isPrivate = false,
-                    receiverId = null, receiverName = null,
-                    priority = com.erns.alertauni.data.model.Prioridad.MEDIA, allowComments = true
-                )
-            ).onSuccess { onPublicado(it.post_id, "Anuncio publicado en $courseCode") }
-                .onFailure { _eventos.send(MuroEvento.Mensaje("No se pudo publicar el anuncio")) }
-        }
-    }
-
     // ---------------- Búsqueda y filtros ----------------
 
     fun onTexto(texto: String) = _filtro.update { it.copy(texto = texto) }

@@ -12,6 +12,31 @@ También se agregaron borradores locales con Room y un **modo demo** para probar
 
 ---
 
+## Análisis de aplicaciones similares
+
+Antes de implementar, se revisó cómo resuelven los anuncios tres plataformas educativas conocidas. La comparación describe su funcionamiento general y puede variar según la versión o la configuración de cada institución.
+
+| Aspecto | Google Classroom | Microsoft Teams | Moodle | AlertaUNI (esta implementación) |
+|---|---|---|---|---|
+| **Dónde están los anuncios** | Tablón de la clase | Publicaciones del canal del equipo | Foro «Avisos» del curso | Muro de Anuncios con todos los cursos del docente |
+| **Público / privado** | Se elige el público: toda la clase o estudiantes concretos | Canal (todos) o chat individual (otra conversación) | Avisos para todo el curso; respuestas privadas solo dentro de un debate | Selector Público/Privado en el **mismo** formulario, con resumen «Lo recibirá solo: …» y confirmación |
+| **Prioridad** | No tiene | Mensajes marcados como «Importante» o «Urgente» | No tiene (solo fijar un debate) | Alta / Media / Baja con color **y** texto en cada tarjeta |
+| **Búsqueda** | Sin buscador en el tablón | Buscador global de mensajes | Búsqueda en foros | Buscador fijo en el muro, sin distinguir tildes, con chips de filtro |
+| **Borradores** | Guardar borrador y programar | El mensaje sin enviar queda en la caja de texto | Sin borradores de avisos | Borradores en Room, separados por cuenta |
+| **Comentarios** | Se configuran a nivel de clase | Respuestas en el hilo; el canal puede moderarse | Se puede bloquear un debate | Habilitar / deshabilitar por anuncio desde el menú ⋮ |
+
+**Qué se tomó de cada una:**
+- De **Classroom**, elegir el destinatario dentro del propio formulario y guardar borradores.
+- De **Teams**, marcar la importancia del mensaje. Aquí se muestra en la lista y no solo al abrirlo.
+- De **Moodle**, cerrar la conversación de un aviso concreto.
+
+**Qué cubre AlertaUNI que esas plataformas no resuelven en una sola pantalla del móvil:**
+- Ver la prioridad y el tipo de cada anuncio sin abrirlo.
+- Buscar y filtrar dentro del muro.
+- Enviar un privado sin cambiar de pantalla, con confirmación del destinatario para evitar errores.
+
+---
+
 ## Funcionalidades y comparativa antes / después
 
 Las capturas «antes» son de la interfaz original (vistas previas de Compose del código original con datos de ejemplo). Los números corresponden a los problemas del informe del examen. Las capturas «después» son de la app en el emulador, en modo demo.

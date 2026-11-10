@@ -186,6 +186,8 @@ fun MainMenuScreen(userType: String) {
                 // Resultado del formulario: recarga, resalta el anuncio nuevo y confirma (mq23).
                 val publicado by entry.savedStateHandle
                     .getStateFlow<Int?>(RESULTADO_POST_ID, null).collectAsState()
+                // Al volver de Comentarios o de otra pestaña se refrescan contadores y estados.
+                LaunchedEffect(Unit) { postViewModel.recargarSiHayDatos() }
                 LaunchedEffect(publicado) {
                     publicado?.let { id ->
                         postViewModel.onPublicado(id, entry.savedStateHandle[RESULTADO_MENSAJE] ?: "Anuncio publicado")
@@ -232,7 +234,7 @@ fun MainMenuScreen(userType: String) {
                     }
                 )
             ) {
-                PostCommentScreen()
+                PostCommentScreen(onVolver = { navController.popBackStack() })
             }
 
             composable(RouteMainMenu.Courses.route) {

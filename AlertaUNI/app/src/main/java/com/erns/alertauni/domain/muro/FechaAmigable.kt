@@ -43,6 +43,20 @@ object FechaAmigable {
         return limpiar(fecha.format(DateTimeFormatter.ofPattern(patron, ES)))
     }
 
+    fun hora(fecha: ZonedDateTime): String = fecha.format(HORA)
+
+    /** Separador de día del chat de comentarios: «Hoy», «Ayer», «Lun 1 jun». */
+    fun dia(fecha: ZonedDateTime?, ahora: ZonedDateTime): String {
+        if (fecha == null) return ""
+        val dias = ChronoUnit.DAYS.between(fecha.toLocalDate(), ahora.toLocalDate())
+        return when {
+            dias <= 0L -> "Hoy"
+            dias == 1L -> "Ayer"
+            fecha.year == ahora.year -> limpiar(fecha.format(DIA_SEMANA))
+            else -> limpiar(fecha.format(DIA_ANIO))
+        }
+    }
+
     fun grupo(fecha: ZonedDateTime?, ahora: ZonedDateTime): GrupoFecha {
         if (fecha == null) return GrupoFecha.ANTERIORES
         val dias = ChronoUnit.DAYS.between(fecha.toLocalDate(), ahora.toLocalDate())

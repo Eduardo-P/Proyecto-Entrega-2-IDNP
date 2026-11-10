@@ -30,7 +30,8 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun getComments(commentDto: CommentDto): Result<List<CommentEntity>> {
         return try {
             val success = commentDataSource.callCommentsEndpoint(commentDto)
-            if (success.data.isNotEmpty()) {
+            // Una lista vacía es un resultado válido (antes se devolvía como error).
+            run {
                 val comments = success.data.map { response ->
                     val isMine = response.email == dataStoreHelper.getEmail()
                     CommentEntity(
@@ -44,8 +45,6 @@ class CommentRepositoryImpl @Inject constructor(
                     )
                 }
                 Result.success(comments)
-            } else {
-                Result.failure(Exception("No comments found"))
             }
         } catch (e: Exception) {
             Log.e("CommentRepositoryImpl", "Error fetching comments: ${e.message}")

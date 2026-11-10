@@ -138,6 +138,11 @@ class PostViewModel @Inject constructor(
         }
     }
 
+    /** Recarga solo si ya se habían mostrado datos (al volver a la pantalla). */
+    fun recargarSiHayDatos() {
+        if (_carga.value is Carga.Datos) recargar()
+    }
+
     /** Se llama al volver del formulario: recarga, resalta el anuncio nuevo y confirma. */
     fun onPublicado(postId: Int, mensaje: String) {
         _filtro.value = FiltroMuro()

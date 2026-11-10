@@ -52,7 +52,7 @@ object DemoData {
                 codigo = codigo,
                 firstname = nombre,
                 surname = apellido,
-                email = "${nombre.lowercase()}.$i@demo.unsa.edu.pe"
+                email = "${com.erns.alertauni.domain.muro.TextoBusqueda.normalizar(nombre)}.$i@demo.unsa.edu.pe"
             )
         }
     }

@@ -44,11 +44,10 @@ class MainActivity : ComponentActivity() {
             AlertaUNITheme {
                 // Antes se invocaba MainAppNavigation() dos veces (fuera y dentro del Scaffold),
                 // lo que creaba dos NavHost superpuestos.
+                // Sin relleno superior fijo: cada cabecera pinta su fondo detrás de la barra
+                // de estado (statusBarsPadding) y la NavigationBar maneja la barra de navegación.
                 Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(top = 24.dp)
+                    modifier = Modifier.fillMaxSize()
                 ) { padding ->
                         MainAppNavigation()
                 }

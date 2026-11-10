@@ -56,3 +56,14 @@ val AppTypography = Typography(
         fontSize = 22.sp
     )
 )
+/** Estilos de texto del Muro rediseñado (estilos «AU» de Figma). Roboto = fuente del sistema. */
+object AuText {
+    val Headline = TextStyle(fontFamily = TPSerif, fontWeight = FontWeight.Bold, fontSize = 22.sp, lineHeight = 28.sp)
+    val Title = TextStyle(fontFamily = TPSerif, fontWeight = FontWeight.Bold, fontSize = 17.sp, lineHeight = 22.sp)
+    val Body = TextStyle(fontFamily = TPSerif, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp)
+    val Input = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 15.sp, lineHeight = 20.sp)
+    val LabelLarge = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp)
+    val Label = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp)
+    val Caption = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp)
+    val Small = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 14.sp)
+}

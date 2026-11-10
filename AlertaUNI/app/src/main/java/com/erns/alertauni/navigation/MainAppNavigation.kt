@@ -1,7 +1,17 @@
 package com.erns.alertauni.navigation
 
 import androidx.compose.foundation.layout.padding
+import android.app.Activity
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import com.erns.alertauni.ui.theme.MyPrimaryColor
+import com.erns.alertauni.ui.theme.MyPrimaryForegroundColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -97,12 +107,31 @@ fun MainMenuScreen(userType: String) {
         )
     }
 
+    // Texto e íconos claros sobre la cabecera azul.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+        }
+    }
+
     Scaffold(
+        // Las cabeceras gestionan la barra de estado; la NavigationBar, la de navegación.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            if (currentDestination == RouteScreen.Posts.route ||
-                currentDestination == RouteMainMenu.Courses.route
-            ) {
+            if (currentDestination == RouteScreen.Posts.route) {
+                // FAB extendido con etiqueta: la acción es explícita (antes era un "+" circular).
+                ExtendedFloatingActionButton(
+                    onClick = fabAction.value,
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Nuevo anuncio") },
+                    containerColor = MyPrimaryColor,
+                    contentColor = MyPrimaryForegroundColor,
+                    shape = RoundedCornerShape(16.dp)
+                )
+            } else if (currentDestination == RouteMainMenu.Courses.route) {
                 FloatingActionButton(
                     shape = CircleShape,
                     onClick = fabAction.value

@@ -20,7 +20,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes | Después |
 |---|---|
-| <img src="docs/capturas/antes/cap01_muro_actual.png" width="260"> | <img src="docs/capturas/cap01_muro_nuevo.png" width="260"> |
+| <img src="Docs/capturas/antes/cap01_muro_actual.png" width="260"> | <img src="Docs/capturas/cap01_muro_nuevo.png" width="260"> |
 
 **Mejora:**
 - **Tarjeta:**
@@ -36,7 +36,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes | Después |
 |---|---|
-| <img src="docs/capturas/antes/cap02_fab_superpuesto.png" width="260"> | <img src="docs/capturas/cap05_fin_lista.png" width="260"> |
+| <img src="Docs/capturas/antes/cap02_fab_superpuesto.png" width="260"> | <img src="Docs/capturas/cap05_fin_lista.png" width="260"> |
 
 **Mejora:** el botón flotante ahora es extendido y tiene etiqueta. La lista reserva 88 dp al final (`contentPadding`), así que la última tarjeta se ve completa.
 
@@ -44,7 +44,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes | Después: búsqueda | Después: sin resultados |
 |---|---|---|
-| <img src="docs/capturas/antes/cap04_busqueda_actual.png" width="220"> | <img src="docs/capturas/cap02_busqueda.png" width="220"> | <img src="docs/capturas/cap03_sin_resultados.png" width="220"> |
+| <img src="Docs/capturas/antes/cap04_busqueda_actual.png" width="220"> | <img src="Docs/capturas/cap02_busqueda.png" width="220"> | <img src="Docs/capturas/cap03_sin_resultados.png" width="220"> |
 
 **Mejora:**
 - **Campo de búsqueda:**
@@ -59,11 +59,11 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes: público | Antes: privado (otra pestaña) | Después: formulario único |
 |---|---|---|
-| <img src="docs/capturas/antes/cap05_crear_anuncio_actual.png" width="220"> | <img src="docs/capturas/antes/cap06_privado_contactos_actual.png" width="220"> | <img src="docs/capturas/cap10_formulario_privado.png" width="220"> |
+| <img src="Docs/capturas/antes/cap05_crear_anuncio_actual.png" width="220"> | <img src="Docs/capturas/antes/cap06_privado_contactos_actual.png" width="220"> | <img src="Docs/capturas/cap10_formulario_privado.png" width="220"> |
 
 | Elegir estudiante | Confirmación (solo privados) | Publicado |
 |---|---|---|
-| <img src="docs/capturas/cap09_selector_estudiante.png" width="220"> | <img src="docs/capturas/cap11_confirmacion_privado.png" width="220"> | <img src="docs/capturas/cap12_publicado.png" width="220"> |
+| <img src="Docs/capturas/cap09_selector_estudiante.png" width="220"> | <img src="Docs/capturas/cap11_confirmacion_privado.png" width="220"> | <img src="Docs/capturas/cap12_publicado.png" width="220"> |
 
 **Mejora:**
 - **Un solo formulario.** Su primera pregunta es *¿A quién va dirigido?* y se responde con un `SingleChoiceSegmentedButtonRow`.
@@ -81,7 +81,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Validación en línea |
 |---|
-| <img src="docs/capturas/cap08_validacion.png" width="260"> |
+| <img src="Docs/capturas/cap08_validacion.png" width="260"> |
 
 **Mejora:** antes, publicar con campos vacíos no hacía nada. Ahora cada campo muestra su error (`isError` + `supportingText`) y el resumen se vuelve rojo e indica qué falta.
 
@@ -89,7 +89,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Menú ⋮ | Archivados | Antes: comentarios | Después: comentarios cerrados |
 |---|---|---|---|
-| <img src="docs/capturas/cap06_menu_acciones.png" width="200"> | <img src="docs/capturas/cap04_archivados.png" width="200"> | <img src="docs/capturas/antes/cap07_comentarios_actual.png" width="200"> | <img src="docs/capturas/cap07_comentarios_cerrados.png" width="200"> |
+| <img src="Docs/capturas/cap06_menu_acciones.png" width="200"> | <img src="Docs/capturas/cap04_archivados.png" width="200"> | <img src="Docs/capturas/antes/cap07_comentarios_actual.png" width="200"> | <img src="Docs/capturas/cap07_comentarios_cerrados.png" width="200"> |
 
 **Mejora:**
 - **Menú ⋮:** «Ver comentarios», «Deshabilitar/Habilitar comentarios» y «Archivar».
@@ -104,7 +104,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Guardar al salir | Lista de borradores | Formulario público |
 |---|---|---|
-| <img src="docs/capturas/cap14_salir_con_cambios.png" width="220"> | <img src="docs/capturas/cap15_borradores.png" width="220"> | <img src="docs/capturas/cap13_formulario_publico.png" width="220"> |
+| <img src="Docs/capturas/cap14_salir_con_cambios.png" width="220"> | <img src="Docs/capturas/cap15_borradores.png" width="220"> | <img src="Docs/capturas/cap13_formulario_publico.png" width="220"> |
 
 **Mejora:**
 - **Guardar:** «Guardar borrador» está siempre en la barra superior del formulario. Si se sale con cambios, la app pregunta *Guardar borrador / Descartar / Seguir editando*.

@@ -57,6 +57,10 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    sourceSets {
+        // Los esquemas exportados de Room se usan en las pruebas de migración
+        getByName("test").assets.srcDirs("$projectDir/schemas")
+    }
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
@@ -144,6 +148,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     implementation("com.google.zxing:core:3.5.2")
+}
+
+// Exporta el esquema de Room para versionarlo y probar migraciones
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 configurations.all {

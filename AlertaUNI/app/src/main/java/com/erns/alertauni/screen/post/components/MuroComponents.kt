@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
@@ -134,6 +135,37 @@ fun CampoBusqueda(
             }
         }
     )
+}
+
+/**
+ * Acceso a Borradores (Tarea 3) en la cabecera, con texto y contador visibles: un ícono solo
+ * sería poco descubrible para la tarea de usabilidad «guardar un borrador y recuperarlo».
+ */
+@Composable
+fun BotonBorradores(cantidad: Int, onClick: () -> Unit) {
+    androidx.compose.material3.Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        color = MyPrimaryForegroundColor.copy(alpha = 0.14f),
+        contentColor = MyPrimaryForegroundColor
+    ) {
+        Row(
+            Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(androidx.compose.material.icons.Icons.Outlined.EditNote, null, Modifier.size(18.dp))
+            Text("Borradores", style = AuText.LabelLarge)
+            if (cantidad > 0) {
+                Box(
+                    Modifier
+                        .size(20.dp)
+                        .background(MyPrimaryForegroundColor, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) { Text(if (cantidad > 9) "9+" else "$cantidad", style = AuText.Small, color = MyPrimaryColor) }
+            }
+        }
+    }
 }
 
 /** Fila de chips combinables: Curso, Tipo, Prioridad y Archivados (LazyRow + DropdownMenu). */

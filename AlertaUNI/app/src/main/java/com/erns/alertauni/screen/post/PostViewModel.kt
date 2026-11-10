@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.erns.alertauni.common.FechaBackend
 import com.erns.alertauni.data.model.BackendException
 import com.erns.alertauni.data.model.PostEntity
+import com.erns.alertauni.data.repository.DraftRepository
 import com.erns.alertauni.data.repository.PostRepository
 import com.erns.alertauni.domain.manager.DataStoreHelper
 import com.erns.alertauni.domain.muro.FechaAmigable
@@ -72,7 +73,8 @@ sealed interface MuroEvento {
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
-    private val dataStoreHelper: DataStoreHelper
+    private val dataStoreHelper: DataStoreHelper,
+    draftRepository: DraftRepository
 ) : ViewModel() {
     private val TAG = "PostViewModel"
 
@@ -94,6 +96,10 @@ class PostViewModel @Inject constructor(
 
     private val _resaltado = MutableStateFlow<Int?>(null)
     val resaltado: StateFlow<Int?> = _resaltado.asStateFlow()
+
+    /** Número de borradores de la cuenta (botón «Borradores» de la cabecera). */
+    val borradores: StateFlow<Int> = draftRepository.contarBorradores()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     private val _username = MutableStateFlow("")
     val username: StateFlow<String> = _username.asStateFlow()

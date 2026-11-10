@@ -1,6 +1,8 @@
 package com.erns.alertauni.screen.post.nuevo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.material.icons.outlined.SaveAs
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -103,11 +105,16 @@ fun NuevoAnuncioScreen(
     val snackbar = remember { SnackbarHostState() }
     var selectorAbierto by remember { mutableStateOf(false) }
 
+    // El gesto/botón atrás del sistema también pasa por la confirmación de salida.
+    BackHandler(onBack = viewModel::onVolver)
+
     LaunchedEffect(Unit) {
         viewModel.eventos.collect { e ->
             when (e) {
                 is FormEvento.Publicado -> onPublicado(e.postId, e.mensaje)
                 is FormEvento.Error -> snackbar.showSnackbar(e.mensaje)
+                is FormEvento.Mensaje -> snackbar.showSnackbar(e.texto)
+                is FormEvento.Salir -> onCerrar()
             }
         }
     }
@@ -117,9 +124,16 @@ fun NuevoAnuncioScreen(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text("Nuevo anuncio", style = AuText.Headline) },
+                title = { Text(if (ui.borradorId != null) "Editar borrador" else "Nuevo anuncio", style = AuText.Title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                actions = {
+                    // Tarea 3: guardar sin publicar (siempre visible en la barra superior).
+                    TextButton(onClick = { viewModel.guardarBorrador() }, enabled = !ui.guardandoBorrador) {
+                        Icon(Icons.Outlined.SaveAs, null, tint = MyPrimaryForegroundColor, modifier = Modifier.size(18.dp))
+                        Text("Guardar borrador", style = AuText.LabelLarge, color = MyPrimaryForegroundColor, modifier = Modifier.padding(start = 6.dp))
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = onCerrar) {
+                    IconButton(onClick = viewModel::onVolver) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
@@ -234,6 +248,33 @@ fun NuevoAnuncioScreen(
             seleccionadoId = ui.datos.estudianteId,
             onElegir = { viewModel.onEstudiante(it); selectorAbierto = false },
             onCerrar = { selectorAbierto = false }
+        )
+    }
+
+    if (ui.confirmandoSalida) {
+        AlertDialog(
+            onDismissRequest = viewModel::onSeguirEditando,
+            containerColor = MySurfaceColor,
+            icon = { Icon(Icons.Outlined.SaveAs, null, tint = MyPrimaryColor) },
+            title = { Text("¿Guardar como borrador?", style = AuText.Headline) },
+            text = {
+                Text(
+                    "Tienes cambios sin publicar. Puedes guardarlos como borrador y continuar después, o descartarlos.",
+                    style = AuText.Body, color = MyMutedForegroundColor
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.guardarBorrador(yCerrar = true) },
+                    colors = ButtonDefaults.buttonColors(containerColor = MyPrimaryColor)
+                ) { Text("Guardar borrador") }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = viewModel::onDescartar) { Text("Descartar", color = MyPrioHighFg) }
+                    TextButton(onClick = viewModel::onSeguirEditando) { Text("Seguir editando", color = MyPrimaryColor) }
+                }
+            }
         )
     }
 

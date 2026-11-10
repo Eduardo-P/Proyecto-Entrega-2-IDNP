@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.erns.alertauni.domain.muro.FiltroMuro
 import com.erns.alertauni.screen.post.components.AccionesAnuncio
 import com.erns.alertauni.screen.post.components.AnuncioCard
+import com.erns.alertauni.screen.post.components.BotonBorradores
 import com.erns.alertauni.screen.post.components.CargandoMuro
 import com.erns.alertauni.screen.post.components.EstadoMuro
 import com.erns.alertauni.screen.post.components.FiltrosChips
@@ -55,6 +56,7 @@ fun PostScreen(
     snackbarHostState: SnackbarHostState,
     onFabActionReady: (() -> Unit) -> Unit,
     onNuevoAnuncio: () -> Unit,
+    onBorradores: () -> Unit,
     viewModel: PostViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,6 +64,7 @@ fun PostScreen(
     val cursos by viewModel.cursos.collectAsState()
     val usuario by viewModel.username.collectAsState()
     val resaltado by viewModel.resaltado.collectAsState()
+    val borradores by viewModel.borradores.collectAsState()
 
     // El FAB «Nuevo anuncio» abre el formulario único (ruta propia).
     onFabActionReady(onNuevoAnuncio)
@@ -95,7 +98,12 @@ fun PostScreen(
             .fillMaxSize()
             .background(MySecondaryColor)
     ) {
-        MuroHeader(usuario = usuario, texto = filtro.texto, onTexto = viewModel::onTexto)
+        MuroHeader(
+            usuario = usuario,
+            texto = filtro.texto,
+            onTexto = viewModel::onTexto,
+            accion = { BotonBorradores(borradores, onBorradores) }
+        )
         FiltrosChips(
             filtro = filtro,
             cursos = cursos,

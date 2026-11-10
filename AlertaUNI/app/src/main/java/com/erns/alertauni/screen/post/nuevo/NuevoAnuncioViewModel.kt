@@ -8,7 +8,9 @@ import com.erns.alertauni.data.model.CourseCatalogRequest
 import com.erns.alertauni.data.model.NuevoAnuncioRequest
 import com.erns.alertauni.data.model.Prioridad
 import com.erns.alertauni.data.model.StudentEntity
+import com.erns.alertauni.data.repository.BorradorNuevo
 import com.erns.alertauni.data.repository.ContactRepository
+import com.erns.alertauni.data.repository.DraftRepository
 import com.erns.alertauni.data.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -52,8 +54,16 @@ data class FormUiState(
     val confirmandoPrivado: Boolean = false,
     val errores: Map<Campo, String> = emptyMap(),
     val resumen: ResumenDestinatario = ResumenDestinatario("", "", ResumenDestinatario.Tono.NEUTRO),
-    val textoBoton: String = "Publicar"
+    val textoBoton: String = "Publicar",
+    /** Borrador que se está editando (null = anuncio nuevo). */
+    val borradorId: Long? = null,
+    /** Últimos datos guardados (para saber si hay cambios sin guardar). */
+    val datosGuardados: DatosAnuncio = DatosAnuncio(),
+    val confirmandoSalida: Boolean = false,
+    val guardandoBorrador: Boolean = false
 ) {
+    val hayCambios: Boolean get() = datos != datosGuardados
+    val estaVacio: Boolean get() = datos.titulo.isBlank() && datos.contenido.isBlank() && datos.estudianteId == null
     val curso: CatalogCourseEntity? get() = cursos.firstOrNull { it.id == datos.cursoId }
     val estudiante: StudentEntity? get() = estudiantes.firstOrNull { it.student_id == datos.estudianteId }
     fun error(campo: Campo): String? = if (intentoEnviar) errores[campo] else null
@@ -62,6 +72,9 @@ data class FormUiState(
 sealed interface FormEvento {
     data class Publicado(val postId: Int, val mensaje: String) : FormEvento
     data class Error(val mensaje: String) : FormEvento
+    data class Mensaje(val texto: String) : FormEvento
+    /** Cerrar el formulario (tras guardar el borrador o descartar los cambios). */
+    data class Salir(val mensaje: String? = null) : FormEvento
 }
 
 /**
@@ -72,6 +85,7 @@ sealed interface FormEvento {
 class NuevoAnuncioViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val contactRepository: ContactRepository,
+    private val draftRepository: DraftRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -84,6 +98,8 @@ class NuevoAnuncioViewModel @Inject constructor(
     private var cargaEstudiantes: Job? = null
 
     init {
+        val borradorInicial = savedStateHandle.get<String>(ARG_BORRADOR)?.toLongOrNull()
+        if (borradorInicial != null) cargarBorrador(borradorInicial)
         val cursoInicial = savedStateHandle.get<String>(ARG_CURSO)?.takeIf { it.isNotBlank() }
         val estudianteInicial = savedStateHandle.get<String>(ARG_ESTUDIANTE)?.takeIf { it.isNotBlank() }
         if (estudianteInicial != null) {
@@ -147,6 +163,82 @@ class NuevoAnuncioViewModel @Inject constructor(
         }
     }
 
+    // ---------------- Borradores (Tarea 3) ----------------
+
+    private fun cargarBorrador(id: Long) {
+        viewModelScope.launch {
+            val d = draftRepository.obtener(id)
+            if (d == null) {
+                _eventos.send(FormEvento.Error("No se encontró el borrador"))
+                return@launch
+            }
+            val datos = DatosAnuncio(
+                privado = d.privado,
+                cursoId = d.cursoId,
+                estudianteId = d.estudianteId,
+                prioridad = d.prioridad,
+                titulo = d.titulo,
+                contenido = d.contenido,
+                permitirComentarios = d.permitirComentarios
+            )
+            _ui.update { it.copy(borradorId = d.id, datosGuardados = datos) }
+            cargarDatos(datos)
+        }
+    }
+
+    /** Guarda en Room (persistente) y sigue en el formulario. */
+    fun guardarBorrador(yCerrar: Boolean = false) {
+        val s = _ui.value
+        if (s.guardandoBorrador) return
+        if (s.estaVacio) {
+            viewModelScope.launch {
+                if (yCerrar) _eventos.send(FormEvento.Salir())
+                else _eventos.send(FormEvento.Mensaje("Escribe un título o contenido antes de guardar el borrador"))
+            }
+            return
+        }
+        _ui.update { it.copy(guardandoBorrador = true, confirmandoSalida = false) }
+        viewModelScope.launch {
+            runCatching {
+                draftRepository.guardar(
+                    s.borradorId,
+                    BorradorNuevo(
+                        privado = s.datos.privado,
+                        cursoId = s.datos.cursoId,
+                        cursoCodigo = s.curso?.courseCode,
+                        estudianteId = s.datos.estudianteId,
+                        estudianteNombre = s.estudiante?.let { nombreCompleto(it) },
+                        prioridad = s.datos.prioridad,
+                        titulo = s.datos.titulo,
+                        contenido = s.datos.contenido,
+                        permitirComentarios = s.datos.permitirComentarios
+                    )
+                )
+            }.onSuccess { id ->
+                _ui.update { it.copy(borradorId = id, datosGuardados = s.datos, guardandoBorrador = false) }
+                if (yCerrar) _eventos.send(FormEvento.Salir("Borrador guardado"))
+                else _eventos.send(FormEvento.Mensaje("Borrador guardado. Lo encontrarás en «Borradores»."))
+            }.onFailure {
+                _ui.update { it.copy(guardandoBorrador = false) }
+                _eventos.send(FormEvento.Error("No se pudo guardar el borrador"))
+            }
+        }
+    }
+
+    /** Atrás: si hay cambios sin guardar se pregunta qué hacer (prevención de errores). */
+    fun onVolver() {
+        val s = _ui.value
+        if (s.hayCambios && !s.estaVacio) _ui.update { it.copy(confirmandoSalida = true) }
+        else viewModelScope.launch { _eventos.send(FormEvento.Salir()) }
+    }
+
+    fun onSeguirEditando() = _ui.update { it.copy(confirmandoSalida = false) }
+
+    fun onDescartar() {
+        _ui.update { it.copy(confirmandoSalida = false) }
+        viewModelScope.launch { _eventos.send(FormEvento.Salir()) }
+    }
+
     // ---------------- Envío ----------------
 
     /** Nunca es un botón que "no hace nada": si falta algo, muestra los errores. */
@@ -188,7 +280,9 @@ class NuevoAnuncioViewModel @Inject constructor(
                     allowComments = s.datos.permitirComentarios
                 )
             ).onSuccess { r ->
-                _ui.update { it.copy(enviando = false) }
+                // Un borrador publicado deja de ser borrador.
+                s.borradorId?.let { runCatching { draftRepository.eliminar(it) } }
+                _ui.update { it.copy(enviando = false, datosGuardados = it.datos) }
                 val mensaje = if (estudiante != null) "Enviado solo a ${nombreCompleto(estudiante)}"
                 else "Publicado para ${alumnos(s.estudiantes.size)} de ${curso.courseCode}"
                 _eventos.send(FormEvento.Publicado(r.post_id, mensaje))
@@ -268,6 +362,7 @@ class NuevoAnuncioViewModel @Inject constructor(
     companion object {
         const val ARG_CURSO = "cursoId"
         const val ARG_ESTUDIANTE = "estudianteId"
+        const val ARG_BORRADOR = "borradorId"
 
         /** Orden alfabético en español (Á junto a A, Ñ después de N). */
         val ORDEN_ES: java.text.Collator = java.text.Collator.getInstance(java.util.Locale("es", "PE"))

@@ -42,6 +42,7 @@ import com.erns.alertauni.screen.login.ProfileScreen
 import com.erns.alertauni.screen.post.PostCommentScreen
 import com.erns.alertauni.screen.post.PostScreen
 import com.erns.alertauni.screen.post.PostViewModel
+import com.erns.alertauni.screen.post.borradores.BorradoresScreen
 import com.erns.alertauni.screen.post.nuevo.NuevoAnuncioScreen
 import com.erns.alertauni.screen.post.nuevo.NuevoAnuncioViewModel
 import androidx.compose.runtime.LaunchedEffect
@@ -201,6 +202,7 @@ fun MainMenuScreen(userType: String) {
                     snackbarHostState = snackbarHostState,
                     onFabActionReady = { fabAction.value = it },
                     onNuevoAnuncio = { navController.navigate(RouteScreen.NuevoAnuncio.crear()) },
+                    onBorradores = { navController.navigate(RouteScreen.Borradores.route) },
                     viewModel = postViewModel
                 )
             }
@@ -208,7 +210,8 @@ fun MainMenuScreen(userType: String) {
                 route = RouteScreen.NuevoAnuncio.route + RouteScreen.NuevoAnuncio.ARGS,
                 arguments = listOf(
                     navArgument(NuevoAnuncioViewModel.ARG_CURSO) { type = NavType.StringType; defaultValue = "" },
-                    navArgument(NuevoAnuncioViewModel.ARG_ESTUDIANTE) { type = NavType.StringType; defaultValue = "" }
+                    navArgument(NuevoAnuncioViewModel.ARG_ESTUDIANTE) { type = NavType.StringType; defaultValue = "" },
+                    navArgument(NuevoAnuncioViewModel.ARG_BORRADOR) { type = NavType.StringType; defaultValue = "" }
                 )
             ) {
                 NuevoAnuncioScreen(
@@ -224,6 +227,12 @@ fun MainMenuScreen(userType: String) {
                             launchSingleTop = true
                         }
                     }
+                )
+            }
+            composable(RouteScreen.Borradores.route) {
+                BorradoresScreen(
+                    onVolver = { navController.popBackStack() },
+                    onContinuar = { id -> navController.navigate(RouteScreen.NuevoAnuncio.crear(borradorId = id)) }
                 )
             }
             composable(

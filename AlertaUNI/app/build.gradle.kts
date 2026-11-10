@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,14 @@ plugins {
     alias(libs.plugins.dagger.hilt)
     id("org.jetbrains.kotlin.plugin.serialization")
 }
+
+// Credenciales y opciones locales: se leen de local.properties (no se sube a git).
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun localProp(key: String, default: String = ""): String =
+    localProps.getProperty(key) ?: default
 
 android {
     namespace = "com.erns.alertauni"
@@ -20,10 +30,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${localProp("supabase.url", "https://myurl.supabase.co")}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${localProp("supabase.key", "supabase_key")}\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${localProp("google.webClientId", "12345678-abc.apps.googleusercontent.com")}\"")
     }
 
     buildTypes {
+        debug {
+            // SIMULADO: modo demo sin backend (solo debug). Se activa con alertauni.demo=true en local.properties.
+            buildConfigField("boolean", "DEMO_MODE", localProp("alertauni.demo", "false"))
+        }
         release {
+            buildConfigField("boolean", "DEMO_MODE", "false")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -40,6 +59,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     sourceSets {
         getByName("main") {

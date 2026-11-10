@@ -1,5 +1,6 @@
 package com.erns.alertauni
 
+import com.erns.alertauni.BuildConfig
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -61,8 +62,8 @@ class MainActivity : ComponentActivity() {
 
     private suspend fun test() {
         // 1. Inicializar el cliente
-        var supabaseKey = "supabase_key"
-        var supabaseUrl = "https://myurl.supabase.co"
+        var supabaseKey = BuildConfig.SUPABASE_KEY
+        var supabaseUrl = BuildConfig.SUPABASE_URL
         val supabase = createSupabaseClient(supabaseUrl, supabaseKey) {
             httpEngine = io.ktor.client.engine.okhttp.OkHttp.create()
             install(Postgrest)

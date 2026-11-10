@@ -1,5 +1,6 @@
 package com.erns.alertauni.screen.login
 
+import com.erns.alertauni.BuildConfig
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -65,7 +66,7 @@ class LoginViewModel @Inject constructor(
         // 1. Configurar las opciones de Google ID
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false) // <-- ¡Cámbialo a FALSE para que no falle en el emulador!
-            .setServerClientId("12345678-abc.apps.googleusercontent.com")
+            .setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)
             .setAutoSelectEnabled(false) // Evita que parpadee seleccionando una cuenta automáticamente si hay varias
             .build()
 

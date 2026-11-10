@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Configuracion privada de Firebase (cada equipo usa la suya)
+app/google-services.json

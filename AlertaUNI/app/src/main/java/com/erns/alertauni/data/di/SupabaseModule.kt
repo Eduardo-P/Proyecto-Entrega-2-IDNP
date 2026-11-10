@@ -1,5 +1,6 @@
 package com.erns.alertauni.data.di
 
+import com.erns.alertauni.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,8 +20,8 @@ object SupabaseModule {
     @Singleton
     fun provideSupabaseClient(): SupabaseClient {
         return createSupabaseClient(
-            supabaseUrl = "https://myurl.supabase.co",
-            supabaseKey = "supabase_key"
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_KEY
         ) {
 //            install(Postgrest)
 //            install(Auth)

@@ -1,5 +1,10 @@
 package com.erns.alertauni.screen.login
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
+import com.erns.alertauni.data.demo.DemoData
+import com.erns.alertauni.BuildConfig
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -64,7 +69,8 @@ fun LoginScreen(
     LoginLayout(
         rememberMe = rememberMe.value,
         onRememberMeChange = { viewModel.setRememberMe(it) },
-        btnAutenticar = btnAutenticar
+        btnAutenticar = btnAutenticar,
+        onDemo = if (BuildConfig.DEMO_MODE) viewModel::startDemoSession else null
     )
 
 }
@@ -73,7 +79,8 @@ fun LoginScreen(
 fun LoginLayout(
     rememberMe: Boolean,
     onRememberMeChange: (Boolean) -> Unit,
-    btnAutenticar: () -> Unit
+    btnAutenticar: () -> Unit,
+    onDemo: ((DemoData.CuentaDemo) -> Unit)? = null
 ) {
 
     Column(
@@ -127,5 +134,34 @@ fun LoginLayout(
             Text("Recordar cuenta", modifier = Modifier.padding(start = 2.dp))
         }
 
+        if (onDemo != null) {
+            DemoLoginPanel(onDemo)
+        }
+
+    }
+}
+
+/** SIMULADO: acceso del modo demo (solo debug). Dos cuentas para probar el aislamiento de borradores. */
+@Composable
+private fun DemoLoginPanel(onDemo: (DemoData.CuentaDemo) -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(top = 32.dp, start = 26.dp, end = 26.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("MODO DEMO (datos simulados)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(
+            "Sin conexión al backend: anuncios, cursos y estudiantes son datos de prueba locales.",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center
+        )
+        listOf(DemoData.CUENTA_A, DemoData.CUENTA_B).forEach { cuenta ->
+            OutlinedButton(onClick = { onDemo(cuenta) }, modifier = Modifier.fillMaxWidth()) {
+                Text("Entrar como ${cuenta.nombre} ${cuenta.apellido}")
+            }
+        }
     }
 }

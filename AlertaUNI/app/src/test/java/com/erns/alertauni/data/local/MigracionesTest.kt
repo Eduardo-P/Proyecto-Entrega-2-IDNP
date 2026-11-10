@@ -45,4 +45,19 @@ class MigracionesTest {
             assertEquals(1, c.getInt(0))
         }
     }
+
+    @Test
+    fun migracion3a4_creaTablasDemoSinTocarDatosPrevios() {
+        helper.createDatabase(nombreDb, 3).apply {
+            execSQL("INSERT INTO notificaciones (cursoId, mensaje, fecha) VALUES ('INF-01', 'Hola', '2026-05-31 10:00:00')")
+            execSQL("INSERT INTO post_extra (postId, priority) VALUES (7, 1)")
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(nombreDb, 4, true, AppDatabase.MIGRATION_3_4)
+
+        db.query("SELECT COUNT(*) FROM notificaciones").use { c -> c.moveToFirst(); assertEquals(1, c.getInt(0)) }
+        db.query("SELECT COUNT(*) FROM post_extra").use { c -> c.moveToFirst(); assertEquals(1, c.getInt(0)) }
+        db.query("SELECT COUNT(*) FROM demo_post").use { c -> c.moveToFirst(); assertEquals(0, c.getInt(0)) }
+    }
 }

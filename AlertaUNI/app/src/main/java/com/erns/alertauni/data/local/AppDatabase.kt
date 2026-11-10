@@ -6,6 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.erns.alertauni.data.demo.DemoCommentEntity
+import com.erns.alertauni.data.demo.DemoDao
+import com.erns.alertauni.data.demo.DemoPostEntity
 import com.erns.alertauni.data.model.NotificacionEntity
 
 /**
@@ -13,17 +16,22 @@ import com.erns.alertauni.data.model.NotificacionEntity
  *
  * - v2: `notificaciones` (original).
  * - v3: `post_extra` (SIMULADO: prioridad, archivado, comentarios y destinatario).
+ * - v4: `demo_post` y `demo_comment` (SIMULADO: backend local del modo demo).
  *
  * Cada cambio de versión tiene una migración real: nunca se usa
  * `fallbackToDestructiveMigration`, para no borrar las notificaciones guardadas.
  */
 @Database(
-    entities = [NotificacionEntity::class, PostExtraEntity::class],
-    version = 3
+    entities = [
+        NotificacionEntity::class, PostExtraEntity::class,
+        DemoPostEntity::class, DemoCommentEntity::class
+    ],
+    version = 4
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificacionDao(): NotificacionDao
     abstract fun postExtraDao(): PostExtraDao
+    abstract fun demoDao(): DemoDao
 
     companion object {
         const val NOMBRE = "notificaciones-db"
@@ -38,7 +46,25 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRACIONES = arrayOf(MIGRATION_2_3)
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `demo_post` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`courseCatalogId` TEXT NOT NULL, `courseCode` TEXT NOT NULL, `courseName` TEXT NOT NULL, " +
+                        "`title` TEXT NOT NULL, `content` TEXT NOT NULL, `isPrivate` INTEGER NOT NULL, " +
+                        "`receiverId` TEXT, `receiverName` TEXT, `priority` INTEGER NOT NULL, " +
+                        "`allowComments` INTEGER NOT NULL, `archivedAt` TEXT, `published` TEXT NOT NULL, " +
+                        "`authorName` TEXT NOT NULL)"
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `demo_comment` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`postId` INTEGER NOT NULL, `authorName` TEXT NOT NULL, `email` TEXT NOT NULL, " +
+                        "`content` TEXT NOT NULL, `published` TEXT NOT NULL)"
+                )
+            }
+        }
+
+        val MIGRACIONES = arrayOf(MIGRATION_2_3, MIGRATION_3_4)
 
         @Volatile
         private var INSTANCE: AppDatabase? = null

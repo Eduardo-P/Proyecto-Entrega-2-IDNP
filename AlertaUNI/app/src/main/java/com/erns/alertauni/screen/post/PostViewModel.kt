@@ -6,7 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.erns.alertauni.data.model.BackendException
 import com.erns.alertauni.data.model.PostEntity
 import com.erns.alertauni.data.model.CatalogCourseEntity
-import com.erns.alertauni.data.model.PostRequest
+import com.erns.alertauni.data.model.NuevoAnuncioRequest
+import com.erns.alertauni.data.model.Prioridad
 import com.erns.alertauni.data.repository.PostRepository
 import com.erns.alertauni.domain.manager.DataStoreHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,15 +77,19 @@ class PostViewModel @Inject constructor(
         contentPost: String
     ) {
         viewModelScope.launch {
-            val postRequest = PostRequest(
-                course_catalog_id = courseCatalogId,
+            val postRequest = NuevoAnuncioRequest(
+                courseCatalogId = courseCatalogId,
+                courseCode = "",
                 title = titlePost,
                 content = contentPost,
-                is_private = false,
-                allow_comments = true
+                isPrivate = false,
+                receiverId = null,
+                receiverName = null,
+                priority = Prioridad.MEDIA,
+                allowComments = true
             )
 
-            repository.sendPost(postRequest).onSuccess { postAddResponse ->
+            repository.publish(postRequest).onSuccess { postAddResponse ->
                 _postState.value = PostState.Saved
 
             }.onFailure {

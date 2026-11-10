@@ -58,8 +58,9 @@ android {
         jvmTarget = "11"
     }
     sourceSets {
-        // Los esquemas exportados de Room se usan en las pruebas de migración
-        getByName("test").assets.srcDirs("$projectDir/schemas")
+        // Robolectric lee los esquemas de Room desde los assets de la variante debug
+        // (solo afecta al APK de depuración; son unos pocos KB).
+        getByName("debug").assets.srcDirs("$projectDir/schemas")
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
@@ -136,6 +137,7 @@ dependencies {
     // Pruebas locales (JVM) de Room y ViewModels con Robolectric
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.test:core-ktx:1.6.1")
+    testImplementation(libs.androidx.junit)
     testImplementation("androidx.room:room-testing:2.7.0-alpha11")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     androidTestImplementation(libs.androidx.junit)

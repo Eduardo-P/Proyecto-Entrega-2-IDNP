@@ -172,22 +172,89 @@ Las capturas «antes» (`Docs/capturas/antes/`) son de la interfaz original: vis
 
 Se respeta la arquitectura **MVVM** existente: Hilt, ViewModels con `StateFlow`, repositorios en `data/repository` y fuentes de datos en `data/remote`.
 
+```mermaid
+flowchart LR
+    subgraph UI["UI · Jetpack Compose"]
+        direction TB
+        PS["PostScreen<br/>AnuncioCard · MuroComponents"]
+        NS["NuevoAnuncioScreen<br/>SelectorEstudianteSheet"]
+        BS["BorradoresScreen"]
+        CS["PostCommentScreen"]
+    end
+
+    subgraph VM["ViewModels · StateFlow"]
+        direction TB
+        PVM["PostViewModel<br/>MuroUiState · FiltroMuro · eventos (Snackbar)"]
+        NVM["NuevoAnuncioViewModel<br/>FormUiState · validación"]
+        BVM["BorradoresViewModel"]
+        CVM["PostCommentViewModel"]
+    end
+
+    DOM["domain/muro<br/>FiltroMuro · TextoBusqueda · FechaAmigable<br/>búsqueda sin tildes y resaltado<br/><i>lógica pura con pruebas</i>"]
+
+    subgraph REPO["Repositorios (interfaces)"]
+        direction TB
+        PR["PostRepository"]
+        COR["CommentRepository"]
+        CR["ContactRepository"]
+        DR["DraftRepository"]
+    end
+
+    DI{{"RepositorySelectorModule (Hilt)<br/>BuildConfig.DEMO_MODE"}}
+
+    subgraph IMPL["Implementaciones"]
+        direction TB
+        REAL["Reales<br/>PostRepositoryImpl<br/>CommentRepositoryImpl<br/>ContactRepositoryImpl"]
+        DEMO["Demo<br/>DemoPostRepository<br/>DemoCommentRepository<br/>DemoContactRepository"]
+        DRI["DraftRepositoryImpl<br/>DraftDao"]
+    end
+
+    SB[("Supabase<br/>Edge Functions")]
+
+    subgraph ROOM["AppDatabase · Room v5"]
+        direction TB
+        T1[("notificaciones<br/>(original)")]
+        T2[("post_extra")]
+        T3[("demo_post · demo_comment")]
+        T4[("drafts")]
+    end
+
+    PS --> PVM
+    NS --> NVM
+    BS --> BVM
+    CS --> CVM
+    PVM --> DOM
+
+    PVM --> PR
+    PVM --> DR
+    NVM --> PR
+    NVM --> CR
+    NVM --> DR
+    BVM --> DR
+    CVM --> COR
+    CVM --> PR
+
+    PR --> DI
+    COR --> DI
+    CR --> DI
+    DI -- "demo = false" --> REAL
+    DI -- "demo = true" --> DEMO
+    DR --> DRI
+
+    REAL --> SB
+    REAL -- "prioridad, archivado,<br/>comentarios, destinatario" --> T2
+    DEMO --> T3
+    DRI --> T4
+
+    classDef real fill:#DCFCE7,stroke:#16A34A,color:#14532D
+    classDef simulado fill:#FEF3C7,stroke:#D97706,color:#78350F
+    classDef local fill:#DBEAFE,stroke:#1E40AF,color:#1E3A8A
+    class REAL,SB real
+    class DEMO,T2,T3 simulado
+    class DRI,T4,T1 local
 ```
-UI (Compose)                      ViewModel (StateFlow)           Datos
-──────────────────────────────    ────────────────────────────    ──────────────────────────────────────
-screen/post/PostScreen ────────▶  PostViewModel ───────────────▶ PostRepository ─┬─ PostRepositoryImpl → Supabase (REAL)
-  components/AnuncioCard            MuroUiState, FiltroMuro        (interfaz)      │    + PostExtraDao (Room, SIMULADO)
-  components/MuroComponents         eventos (Snackbar)                             └─ DemoPostRepository → Room (SIMULADO, modo demo)
-screen/post/nuevo/
-  NuevoAnuncioScreen ──────────▶  NuevoAnuncioViewModel ───────▶ PostRepository, ContactRepository, DraftRepository
-  SelectorEstudianteSheet           FormUiState, validación
-screen/post/borradores/
-  BorradoresScreen ────────────▶  BorradoresViewModel ─────────▶ DraftRepository → DraftDao (Room, REAL/local)
-screen/post/PostCommentScreen ──▶  PostCommentViewModel ────────▶ CommentRepository, PostRepository
-domain/muro/  FiltroMuro · TextoBusqueda (búsqueda sin tildes + resaltado) · FechaAmigable   ← lógica pura con pruebas
-data/di/RepositorySelectorModule  → elige la implementación real o la demo según BuildConfig.DEMO_MODE
-data/local/AppDatabase (Room v5)  → notificaciones (original) · post_extra · demo_post · demo_comment · drafts
-```
+
+**Colores:** verde = integrado con el backend real · amarillo = SIMULADO (modo demo o datos que Supabase aún no soporta) · azul = almacenamiento local real en Room (borradores y notificaciones).
 
 - **Room:** la base pasó de v2 a v5 con **migraciones reales**: 2→3, 3→4 y 4→5. No se usa `fallbackToDestructiveMigration`, así que se conservan las notificaciones guardadas. Los esquemas están en `AlertaUNI/app/schemas/`.
 - **Componentes experimentales de Material 3:** `SingleChoiceSegmentedButtonRow`, `ModalBottomSheet`, `ExposedDropdownMenuBox` y `stickyHeader` se usan con `@OptIn`.

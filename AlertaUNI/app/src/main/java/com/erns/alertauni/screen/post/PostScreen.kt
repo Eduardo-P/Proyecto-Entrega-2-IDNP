@@ -31,6 +31,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
+import com.erns.alertauni.ui.theme.esAlturaCompacta
+import kotlin.math.roundToInt
 import com.erns.alertauni.domain.muro.FiltroMuro
 import com.erns.alertauni.screen.post.components.AccionesAnuncio
 import com.erns.alertauni.screen.post.components.AnuncioCard
@@ -93,25 +110,50 @@ fun PostScreen(
         onRestaurar = viewModel::restaurar
     )
 
+    // Con poca altura (teléfono en horizontal), la cabecera y los chips se ocultan al bajar
+    // por la lista y vuelven al subir; así se ven los anuncios (incidencia PT-01).
+    // En vertical la cabecera queda fija, como en Figma y en las pruebas de usabilidad.
+    val alturaCompacta = esAlturaCompacta()
+    val cabecera = remember { CabeceraOcultable() }
+    LaunchedEffect(alturaCompacta) { if (!alturaCompacta) cabecera.mostrar() }
+
     Column(
         modifier
             .fillMaxSize()
             .background(MySecondaryColor)
+            .then(if (alturaCompacta) Modifier.nestedScroll(cabecera.conexion) else Modifier)
     ) {
-        MuroHeader(
-            usuario = usuario,
-            texto = filtro.texto,
-            onTexto = viewModel::onTexto,
-            accion = { BotonBorradores(borradores, onBorradores) }
-        )
-        FiltrosChips(
-            filtro = filtro,
-            cursos = cursos,
-            onCurso = viewModel::onCurso,
-            onTipo = viewModel::onTipo,
-            onPrioridad = viewModel::onPrioridad,
-            onArchivados = viewModel::onArchivados
-        )
+        if (alturaCompacta) {
+            // La franja de la barra de estado queda fija y azul aunque la cabecera se oculte.
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .background(MyPrimaryColor)
+                    .windowInsetsTopHeight(WindowInsets.statusBars)
+            )
+        }
+        Column(
+            if (alturaCompacta) {
+                Modifier
+                    .consumeWindowInsets(WindowInsets.statusBars)
+                    .ocultable(cabecera)
+            } else Modifier
+        ) {
+            MuroHeader(
+                usuario = usuario,
+                texto = filtro.texto,
+                onTexto = viewModel::onTexto,
+                accion = { BotonBorradores(borradores, onBorradores) }
+            )
+            FiltrosChips(
+                filtro = filtro,
+                cursos = cursos,
+                onCurso = viewModel::onCurso,
+                onTipo = viewModel::onTipo,
+                onPrioridad = viewModel::onPrioridad,
+                onArchivados = viewModel::onArchivados
+            )
+        }
         when (val estado = uiState) {
             MuroUiState.Cargando -> CargandoMuro()
             is MuroUiState.Error -> EstadoMuro(
@@ -140,6 +182,43 @@ fun PostScreen(
         }
     }
 }
+
+/**
+ * Estado de la cabecera ocultable: [desplazamiento] va de 0 (visible) a -[alto] (oculta).
+ * Al bajar por la lista la cabecera se oculta antes de que la lista se mueva, y al subir
+ * reaparece primero (patrón «enterAlways» de Material).
+ */
+@Stable
+private class CabeceraOcultable {
+    var alto by mutableIntStateOf(0)
+    var desplazamiento by mutableFloatStateOf(0f)
+
+    fun mostrar() {
+        desplazamiento = 0f
+    }
+
+    val conexion = object : NestedScrollConnection {
+        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            if (alto == 0) return Offset.Zero
+            val nuevo = (desplazamiento + available.y).coerceIn(-alto.toFloat(), 0f)
+            val consumido = nuevo - desplazamiento
+            desplazamiento = nuevo
+            return Offset(0f, consumido)
+        }
+    }
+}
+
+/** Dibuja el contenido desplazado hacia arriba y reserva solo la parte que sigue visible. */
+private fun Modifier.ocultable(estado: CabeceraOcultable): Modifier = this
+    .clipToBounds()
+    .layout { medible, restricciones ->
+        val pieza = medible.measure(restricciones.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+        estado.alto = pieza.height
+        val desplazado = estado.desplazamiento.roundToInt()
+        layout(pieza.width, (pieza.height + desplazado).coerceAtLeast(0)) {
+            pieza.place(0, desplazado)
+        }
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -3,6 +3,17 @@ package com.erns.alertauni.navigation
 import androidx.compose.foundation.layout.padding
 import android.app.Activity
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import com.erns.alertauni.ui.theme.esAlturaCompacta
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -118,6 +129,18 @@ fun MainMenuScreen(userType: String) {
         )
     }
 
+    // Pestañas principales: con poca altura (teléfono en horizontal) la navegación pasa a un
+    // riel lateral para no robar 80 dp de alto a la lista (incidencia PT-01). En vertical, barra inferior.
+    val enPestana = items.any { it.route == currentDestination }
+    val usarRiel = enPestana && esAlturaCompacta()
+    val irAPestana: (RouteMainMenu) -> Unit = { screen ->
+        navController.navigate(screen.route) {
+            popUpTo(navController.graph.startDestinationId) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     // Texto e íconos claros sobre la cabecera azul.
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -136,6 +159,8 @@ fun MainMenuScreen(userType: String) {
                 // FAB extendido con etiqueta: la acción es explícita (antes era un "+" circular).
                 ExtendedFloatingActionButton(
                     onClick = fabAction.value,
+                    // Sin barra inferior (riel), el FAB debe quedar por encima de la barra de gestos.
+                    modifier = if (usarRiel) Modifier.navigationBarsPadding() else Modifier,
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     text = { Text("Nuevo anuncio") },
                     containerColor = MyPrimaryColor,
@@ -157,19 +182,11 @@ fun MainMenuScreen(userType: String) {
         bottomBar = {
             // La barra inferior solo se ve en las pestañas principales; el formulario y
             // los comentarios son pantallas de detalle con flecha atrás (como en Figma).
-            if (items.any { it.route == currentDestination }) NavigationBar {
-                val currentDestination =
-                    navController.currentBackStackEntryAsState().value?.destination
+            if (enPestana && !usarRiel) NavigationBar {
                 items.forEach { screen ->
                     NavigationBarItem(
-                        selected = currentDestination?.route == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        selected = currentDestination == screen.route,
+                        onClick = { irAPestana(screen) },
                         icon = { Icon(screen.icon, contentDescription = screen.label) },
                         label = { Text(screen.label) }
                     )
@@ -177,93 +194,116 @@ fun MainMenuScreen(userType: String) {
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = RouteMainMenu.Posts.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(RouteMainMenu.Posts.route) { entry ->
-                val postViewModel: PostViewModel = hiltViewModel()
-                // Resultado del formulario: recarga, resalta el anuncio nuevo y confirma (mq23).
-                val publicado by entry.savedStateHandle
-                    .getStateFlow<Int?>(RESULTADO_POST_ID, null).collectAsState()
-                // Al volver de Comentarios o de otra pestaña se refrescan contadores y estados.
-                LaunchedEffect(Unit) { postViewModel.recargarSiHayDatos() }
-                LaunchedEffect(publicado) {
-                    publicado?.let { id ->
-                        postViewModel.onPublicado(id, entry.savedStateHandle[RESULTADO_MENSAJE] ?: "Anuncio publicado")
-                        entry.savedStateHandle[RESULTADO_POST_ID] = null
+        Row(Modifier.padding(innerPadding)) {
+            if (usarRiel) {
+                NavigationRail(containerColor = NavigationBarDefaults.containerColor) {
+                    Spacer(Modifier.weight(1f))
+                    items.forEach { screen ->
+                        NavigationRailItem(
+                            selected = currentDestination == screen.route,
+                            onClick = { irAPestana(screen) },
+                            icon = { Icon(screen.icon, contentDescription = screen.label) },
+                            label = { Text(screen.label) }
+                        )
                     }
+                    Spacer(Modifier.weight(1f))
                 }
-                PostScreen(
-                    onClickComment = { postId ->
-                        navController.navigate(RouteScreen.Comment.route + "/$postId")
-                    },
-                    snackbarHostState = snackbarHostState,
-                    onFabActionReady = { fabAction.value = it },
-                    onNuevoAnuncio = { navController.navigate(RouteScreen.NuevoAnuncio.crear()) },
-                    onBorradores = { navController.navigate(RouteScreen.Borradores.route) },
-                    viewModel = postViewModel
-                )
             }
-            composable(
-                route = RouteScreen.NuevoAnuncio.route + RouteScreen.NuevoAnuncio.ARGS,
-                arguments = listOf(
-                    navArgument(NuevoAnuncioViewModel.ARG_CURSO) { type = NavType.StringType; defaultValue = "" },
-                    navArgument(NuevoAnuncioViewModel.ARG_ESTUDIANTE) { type = NavType.StringType; defaultValue = "" },
-                    navArgument(NuevoAnuncioViewModel.ARG_BORRADOR) { type = NavType.StringType; defaultValue = "" }
-                )
+            NavHost(
+                navController = navController,
+                startDestination = RouteMainMenu.Posts.route,
+                // Con el riel no hay barra inferior que reserve la zona de gestos del sistema.
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        if (usarRiel) Modifier.windowInsetsPadding(
+                            WindowInsets.navigationBars.only(WindowInsetsSides.Bottom + WindowInsetsSides.End)
+                        ) else Modifier
+                    )
             ) {
-                NuevoAnuncioScreen(
-                    onCerrar = { navController.popBackStack() },
-                    onPublicado = { id, mensaje ->
-                        // El resultado vuelve al muro aunque se haya abierto desde Contactos.
-                        navController.getBackStackEntry(RouteMainMenu.Posts.route).savedStateHandle.apply {
-                            set(RESULTADO_MENSAJE, mensaje)
-                            set(RESULTADO_POST_ID, id)
-                        }
-                        navController.navigate(RouteMainMenu.Posts.route) {
-                            popUpTo(RouteMainMenu.Posts.route) { inclusive = false }
-                            launchSingleTop = true
+                composable(RouteMainMenu.Posts.route) { entry ->
+                    val postViewModel: PostViewModel = hiltViewModel()
+                    // Resultado del formulario: recarga, resalta el anuncio nuevo y confirma (mq23).
+                    val publicado by entry.savedStateHandle
+                        .getStateFlow<Int?>(RESULTADO_POST_ID, null).collectAsState()
+                    // Al volver de Comentarios o de otra pestaña se refrescan contadores y estados.
+                    LaunchedEffect(Unit) { postViewModel.recargarSiHayDatos() }
+                    LaunchedEffect(publicado) {
+                        publicado?.let { id ->
+                            postViewModel.onPublicado(id, entry.savedStateHandle[RESULTADO_MENSAJE] ?: "Anuncio publicado")
+                            entry.savedStateHandle[RESULTADO_POST_ID] = null
                         }
                     }
-                )
-            }
-            composable(RouteScreen.Borradores.route) {
-                BorradoresScreen(
-                    onVolver = { navController.popBackStack() },
-                    onContinuar = { id -> navController.navigate(RouteScreen.NuevoAnuncio.crear(borradorId = id)) }
-                )
-            }
-            composable(
-                route = RouteScreen.Comment.route + "/{postId}",
-                arguments = listOf(
-                    navArgument("postId") {
-                        type = NavType.StringType
-                    }
-                )
-            ) {
-                PostCommentScreen(onVolver = { navController.popBackStack() })
-            }
+                    PostScreen(
+                        onClickComment = { postId ->
+                            navController.navigate(RouteScreen.Comment.route + "/$postId")
+                        },
+                        snackbarHostState = snackbarHostState,
+                        onFabActionReady = { fabAction.value = it },
+                        onNuevoAnuncio = { navController.navigate(RouteScreen.NuevoAnuncio.crear()) },
+                        onBorradores = { navController.navigate(RouteScreen.Borradores.route) },
+                        viewModel = postViewModel
+                    )
+                }
+                composable(
+                    route = RouteScreen.NuevoAnuncio.route + RouteScreen.NuevoAnuncio.ARGS,
+                    arguments = listOf(
+                        navArgument(NuevoAnuncioViewModel.ARG_CURSO) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(NuevoAnuncioViewModel.ARG_ESTUDIANTE) { type = NavType.StringType; defaultValue = "" },
+                        navArgument(NuevoAnuncioViewModel.ARG_BORRADOR) { type = NavType.StringType; defaultValue = "" }
+                    )
+                ) {
+                    NuevoAnuncioScreen(
+                        onCerrar = { navController.popBackStack() },
+                        onPublicado = { id, mensaje ->
+                            // El resultado vuelve al muro aunque se haya abierto desde Contactos.
+                            navController.getBackStackEntry(RouteMainMenu.Posts.route).savedStateHandle.apply {
+                                set(RESULTADO_MENSAJE, mensaje)
+                                set(RESULTADO_POST_ID, id)
+                            }
+                            navController.navigate(RouteMainMenu.Posts.route) {
+                                popUpTo(RouteMainMenu.Posts.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
+                composable(RouteScreen.Borradores.route) {
+                    BorradoresScreen(
+                        onVolver = { navController.popBackStack() },
+                        onContinuar = { id -> navController.navigate(RouteScreen.NuevoAnuncio.crear(borradorId = id)) }
+                    )
+                }
+                composable(
+                    route = RouteScreen.Comment.route + "/{postId}",
+                    arguments = listOf(
+                        navArgument("postId") {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+                    PostCommentScreen(onVolver = { navController.popBackStack() })
+                }
 
-            composable(RouteMainMenu.Courses.route) {
-                StudentCourseScreen(
-                    snackbarHostState = snackbarHostState,
-                    onFabActionReady = { fabAction.value = it }
-                )
-            }
+                composable(RouteMainMenu.Courses.route) {
+                    StudentCourseScreen(
+                        snackbarHostState = snackbarHostState,
+                        onFabActionReady = { fabAction.value = it }
+                    )
+                }
 
-            composable(RouteMainMenu.TeacherContacts.route) {
-                TeacherContactScreen(
-                    onNuevoPrivado = { cursoId, estudianteId ->
-                        navController.navigate(RouteScreen.NuevoAnuncio.crear(cursoId, estudianteId))
-                    }
-                )
-            }
-            composable(RouteMainMenu.StudentContacts.route) {
-                StudentContactScreen()
-            }
+                composable(RouteMainMenu.TeacherContacts.route) {
+                    TeacherContactScreen(
+                        onNuevoPrivado = { cursoId, estudianteId ->
+                            navController.navigate(RouteScreen.NuevoAnuncio.crear(cursoId, estudianteId))
+                        }
+                    )
+                }
+                composable(RouteMainMenu.StudentContacts.route) {
+                    StudentContactScreen()
+                }
 
+            }
         }
     }
 }

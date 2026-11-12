@@ -82,5 +82,6 @@ Comprobada con capturas de la app en el emulador frente a las maquetas exportada
 | Diálogo «¿Guardar como borrador?» al salir y pantalla de Borradores | No existían en Figma; siguen el mismo sistema visual (borde discontinuo y etiqueta BORRADOR) |
 | La barra de Comentarios no tiene el menú ⋮ | Habilitar o deshabilitar ya está en el aviso y en el menú de la tarjeta |
 | El aviso de «publicado» no tiene la acción «VER» | El anuncio nuevo ya aparece arriba y resaltado |
+| En horizontal: navegación en un riel lateral y cabecera del muro que se oculta al desplazar | Figma solo diseñó la versión vertical; con poca altura no se veía ningún anuncio (prueba de tamaños PT-01) |
 | El nombre del docente y los datos son los del modo demo | No hubo acceso al backend real (ver «Real vs. simulado» en el README) |
 | Prioridad, archivado, comentarios cerrados y destinatario se guardan en el teléfono | El backend no tiene esas columnas (SIMULADO, tabla `post_extra`) |

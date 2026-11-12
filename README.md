@@ -10,6 +10,8 @@ Implementación en **Jetpack Compose** de la propuesta de diseño del Examen 2 p
 
 También se agregaron borradores locales con Room y un **modo demo** para probar la app sin backend.
 
+**Diseño en Figma** (maquetas del examen y pantallas finales): [IDNP-2 en Figma](https://www.figma.com/design/6NYZzFku0Sk34sPGks41Ik/IDNP-2?node-id=0-1&t=KaXpnx9oZRcCZbzC-1)
+
 ---
 
 ## Análisis de aplicaciones similares

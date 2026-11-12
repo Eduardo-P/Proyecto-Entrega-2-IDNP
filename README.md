@@ -195,8 +195,12 @@ data/local/AppDatabase (Room v5)  → notificaciones (original) · post_extra ·
 | Tipo | Resultado |
 |---|---|
 | Pruebas automáticas (`./gradlew testDebugUnitTest`) | **21 / 21 aprobadas**: búsqueda sin tildes y resaltado, filtros, fechas, migraciones 2→5, variedad de los datos de prueba y borradores (guardar, recuperar, persistencia, aislamiento entre cuentas, deshacer) |
-| Casos manuales en el emulador | **27 aprobados**: muro, búsqueda, filtros, archivar/deshacer/restaurar, menú, comentarios cerrados y habilitar, validación, selector de estudiante, confirmación, publicación pública y privada, atajo desde Contactos, borradores (guardar, salir con cambios, continuar, persistencia tras reiniciar, aislamiento A/B) |
+| Casos nuevos, manuales en el emulador | **28 aprobados**: muro, búsqueda, filtros, archivar/deshacer/restaurar, menú, comentarios cerrados y habilitar, validación, selector de estudiante, cambio de curso, confirmación, publicación pública y privada, atajo desde Contactos, borradores (guardar, salir con cambios, continuar, persistencia tras reiniciar, aislamiento A/B, publicar) |
 | Regresión en el emulador | **4 aprobados**: navegación inferior, comentarios, Contactos y Cursos |
+
+**Detalle de cada prueba con sus capturas:** [`Docs/PRUEBAS.md`](Docs/PRUEBAS.md). Las 51 capturas están en `Docs/capturas/pruebas/`.
+
+Durante estas pruebas apareció un problema: al buscar, la línea «N resultados…» quedaba fuera de la pantalla. Se corrigió y se volvió a probar (caso F04).
 
 **Usabilidad (≥ 2 personas ajenas al equipo).** *Pendiente:* los resultados reales se agregarán aquí al aplicar la prueba. Habrá tres tareas:
 1. Encontrar «Práctica calificada 2».

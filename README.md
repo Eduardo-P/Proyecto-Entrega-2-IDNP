@@ -1,5 +1,21 @@
 # AlertaUNI — Muro de Anuncios rediseñado (Proyecto Integrador, Parte 2)
 
+| | |
+|---|---|
+| **Universidad** | Universidad Nacional de San Agustín de Arequipa, Escuela Profesional de Ingeniería de Sistemas |
+| **Curso** | Introducción al Desarrollo de Nuevas Plataformas |
+| **Docente** | Ernesto Mauro Suarez Lopez |
+| **Grupo** | A4 |
+
+**Integrantes:**
+- Choquehuanca Zapana Hernan Andy
+- Portugal Portugal Eduardo Sebastian
+- Quispe Huaman Rodrigo Ferdinand
+- Quispe Marca Edysson Darwin
+- Salas Aguilar Juan Victor
+
+---
+
 Implementación en **Jetpack Compose** de la propuesta de diseño del Examen 2 para el **Muro de Anuncios** del docente, sobre la app AlertaUNI (Kotlin, MVVM, Hilt, Room y Supabase).
 
 **Problema.** En la app original la búsqueda no filtraba, los anuncios privados solo se podían enviar desde Contactos, no había prioridad, archivado ni forma de cerrar los comentarios, el botón «+» tapaba la última tarjeta, las tarjetas tenían altura fija y la fecha era técnica (`2026-05-31 01:36:32`). Además, publicar con campos vacíos no hacía nada y no avisaba.

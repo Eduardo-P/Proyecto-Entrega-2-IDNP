@@ -202,12 +202,25 @@ data/local/AppDatabase (Room v5)  → notificaciones (original) · post_extra ·
 
 Durante estas pruebas apareció un problema: al buscar, la línea «N resultados…» quedaba fuera de la pantalla. Se corrigió y se volvió a probar (caso F04).
 
-**Usabilidad (≥ 2 personas ajenas al equipo).** *Pendiente:* los resultados reales se agregarán aquí al aplicar la prueba. Habrá tres tareas:
-1. Encontrar «Práctica calificada 2».
-2. Preparar un anuncio privado para un estudiante.
-3. Guardar un borrador y recuperarlo.
+**Usabilidad (Tarea 4-B).** Se probó con **2 personas ajenas al equipo** (24 y 47 años), sin explicarles la interfaz, en modo demo. Tareas:
+1. Encontrar el anuncio «Primera práctica calificada».
+2. Enviar un anuncio privado a Luis Huamán Ccama de INF-01. En ese curso hay otro estudiante llamado Luis.
+3. Empezar un anuncio público, guardarlo como borrador, recuperarlo y publicarlo.
 
-Se medirá si completan cada tarea, el tiempo, los errores, si piden ayuda y, opcionalmente, SEQ y SUS.
+| Tarea | Completadas sin ayuda | Tiempo promedio | Errores | SEQ promedio (1–7) |
+|---|---|---|---|---|
+| 1. Buscar | 2 / 2 | 0:20 | 0 | 6,0 |
+| 2. Anuncio privado | 2 / 2 | 1:02 | 0 | 7,0 |
+| 3. Borrador | 2 / 2 | 1:00 | 0 | 6,5 |
+
+- **SUS:** 100 en ambos participantes. Con 2 personas el número es solo indicativo, y una puntuación máxima es poco habitual, así que pesan más las observaciones.
+- **Criterios de éxito definidos en el examen:** se cumplen los cuatro (≥ 90 % sin ayuda, 0 envíos al destinatario equivocado, SEQ ≥ 5,5 y SUS ≥ 68).
+- **Observaciones:**
+  - Nadie se equivocó de destinatario.
+  - El botón «Borradores» se encontró sin dificultad.
+  - Uno de los participantes (P2) no vio el buscador al principio y buscó desplazando la lista; luego lo encontró («Acá hay un buscador, es más fácil así»).
+
+**Detalle completo** (participantes, tareas, tiempos, citas, SUS por ítem y hallazgos): [`Docs/HOJA_RESULTADOS_USABILIDAD.md`](Docs/HOJA_RESULTADOS_USABILIDAD.md).
 
 ## Decisiones del diseño del examen
 
@@ -234,7 +247,28 @@ Se medirá si completan cada tarea, el tiempo, los errores, si piden ayuda y, op
 6. **El tema usa siempre la paleta de la marca** (`dynamicColor = false`, modo claro): el color dinámico pintaba el FAB y la barra con el fondo de pantalla.
 7. **La pantalla de comentarios no tiene el menú ⋮** que había en Figma; habilitar o deshabilitar se hace desde el aviso o desde el menú de la tarjeta.
 
-Los cambios por resultados de usabilidad se documentarán aquí cuando se hagan las pruebas.
+## Evaluación y mejoras (Tarea 4-C)
+
+**Problemas encontrados en las pruebas de funcionamiento y corregidos:**
+
+| Problema | Corrección |
+|---|---|
+| Las fechas se mostraban en UTC (`14:15` en vez de `09:15`) | `FechaBackend` las convierte a hora de Perú |
+| Los estudiantes con tilde se ordenaban mal («Cáceres» después de «Condori») | Orden con `Collator` en español |
+| El buscador de la hoja de estudiantes era blanco sobre blanco | Color de fondo propio para ese campo |
+| Concordancia: «1 comentarios», «1 anuncio archivado · no aparecen» | Textos en singular y plural |
+| Al buscar, la línea «N resultados…» quedaba fuera de la pantalla | La lista vuelve al inicio cuando aparece esa línea |
+
+**Hallazgos de usabilidad** (detalle en la sección 6 de la [hoja de resultados](Docs/HOJA_RESULTADOS_USABILIDAD.md)):
+
+| Hallazgo | Severidad | Decisión |
+|---|---|---|
+| P2 no notó el buscador a la primera (tardó 0:25 frente a 0:15) | Baja: completó sin ayuda | Se mantiene el buscador fijo en la cabecera. Lo encontró por su cuenta en segundos, y el evaluador lo atribuye a su poca experiencia con apps parecidas. |
+| P2 tardó más en los formularios (1:19 y 1:20 frente a 0:45 y 0:40), sin errores | Baja | Sin cambios: leyó cada elemento con calma y no tuvo dudas |
+
+Las decisiones del examen que más se validaron fueron:
+- **El selector de estudiante con búsqueda, el resumen «Lo recibirá solo: …» y la confirmación:** ningún envío fue al «Luis» equivocado.
+- **El botón «Borradores» con texto y contador:** se encontró sin dificultad.
 
 ## Cómo compilar y ejecutar
 

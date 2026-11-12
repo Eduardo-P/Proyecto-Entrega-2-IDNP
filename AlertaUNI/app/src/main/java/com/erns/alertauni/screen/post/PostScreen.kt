@@ -1,280 +1,199 @@
 package com.erns.alertauni.screen.post
 
-import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.erns.alertauni.R
-import com.erns.alertauni.data.model.PostEntity
-import com.erns.alertauni.screen.common.SearchBoxComponent
-import com.erns.alertauni.screen.common.UserInitialCircle
-import com.erns.alertauni.ui.theme.MyBorderColor
-import com.erns.alertauni.ui.theme.MyMutedColor
+import com.erns.alertauni.domain.muro.FiltroMuro
+import com.erns.alertauni.screen.post.components.AccionesAnuncio
+import com.erns.alertauni.screen.post.components.AnuncioCard
+import com.erns.alertauni.screen.post.components.BotonBorradores
+import com.erns.alertauni.screen.post.components.CargandoMuro
+import com.erns.alertauni.screen.post.components.EstadoMuro
+import com.erns.alertauni.screen.post.components.FiltrosChips
+import com.erns.alertauni.screen.post.components.IconosEstado
+import com.erns.alertauni.screen.post.components.MuroHeader
+import com.erns.alertauni.ui.theme.AuText
 import com.erns.alertauni.ui.theme.MyMutedForegroundColor
 import com.erns.alertauni.ui.theme.MyPrimaryColor
 import com.erns.alertauni.ui.theme.MySecondaryColor
-import com.erns.alertauni.ui.theme.MySurfaceColor
-import kotlinx.coroutines.launch
 
+/**
+ * Muro de Anuncios rediseñado (Figma F01, maquetas mq05, mq11, mq12, mq21, mq22).
+ * Toda la lógica (filtros, agrupación, fechas, archivado) está en PostViewModel.
+ */
 @Composable
 fun PostScreen(
     modifier: Modifier = Modifier,
     onClickComment: (String) -> Unit,
     snackbarHostState: SnackbarHostState,
-    onFabActionReady: (() -> Unit) -> Unit
+    onFabActionReady: (() -> Unit) -> Unit,
+    onNuevoAnuncio: () -> Unit,
+    onBorradores: () -> Unit,
+    viewModel: PostViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val postViewModel: PostViewModel = hiltViewModel()
-    val scope = rememberCoroutineScope()
-    val announcementState = postViewModel.announcements.collectAsState()
-    val catalogCourseState = postViewModel.catalogCourses.collectAsState()
-    val showAddDialog = remember { mutableStateOf(false) }
-    val searchQuery = remember { mutableStateOf("") }
-    val username = remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+    val filtro by viewModel.filtro.collectAsState()
+    val cursos by viewModel.cursos.collectAsState()
+    val usuario by viewModel.username.collectAsState()
+    val resaltado by viewModel.resaltado.collectAsState()
+    val borradores by viewModel.borradores.collectAsState()
 
+    // El FAB «Nuevo anuncio» abre el formulario único (ruta propia).
+    onFabActionReady(onNuevoAnuncio)
+
+    // Snackbars: confirmaciones, errores y «Deshacer» al archivar.
     LaunchedEffect(Unit) {
-        postViewModel.username.collect {
-            username.value = it
-        }
-    }
-
-    val onClickNewPost: (String, String, String, String, String) -> Unit =
-        { courseCatalogId, courseCode, courseName, titlePost, contentPost ->
-            showAddDialog.value = false
-            postViewModel.sendPost(
-                courseCatalogId,
-                titlePost,
-                contentPost
-            )
-        }
-
-    val onClickFloatingActionButton: () -> Unit = {
-        if (catalogCourseState.value.isNotEmpty()) {
-            showAddDialog.value = true
-        } else {
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    message = "Debes estar inscrito en al menos un curso para crear una notificación."
-                )
+        viewModel.eventos.collect { evento ->
+            when (evento) {
+                is MuroEvento.Mensaje -> snackbarHostState.showSnackbar(evento.texto)
+                is MuroEvento.Archivado -> {
+                    val r = snackbarHostState.showSnackbar(
+                        message = "«${evento.post.title}» archivado",
+                        actionLabel = "Deshacer",
+                        duration = SnackbarDuration.Long
+                    )
+                    if (r == SnackbarResult.ActionPerformed) viewModel.restaurar(evento.post)
+                }
             }
         }
     }
 
-    onFabActionReady(onClickFloatingActionButton)
-
-    if (showAddDialog.value && catalogCourseState.value.isNotEmpty()) {
-        AddPostDialog(
-            onDismiss = { showAddDialog.value = false },
-            onClickNewPost = onClickNewPost,
-            catalogCourses = catalogCourseState.value
-        )
-    }
-
-    BoardLayout(
-        username.value,
-        "Anuncios",
-        searchQuery = searchQuery,
-        notificacionesFiltradas = announcementState.value,
-        onClickComment
+    val acciones = AccionesAnuncio(
+        onAbrir = { onClickComment(it.id.toString()) },
+        onAlternarComentarios = viewModel::alternarComentarios,
+        onArchivar = viewModel::archivar,
+        onRestaurar = viewModel::restaurar
     )
 
-}
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun BoardLayout(
-    username: String,
-    title: String,
-    searchQuery: MutableState<String>,
-    notificacionesFiltradas: List<PostEntity>,
-    onClickComment: (String) -> Unit
-) {
-
     Column(
-        modifier = Modifier
+        modifier
             .fillMaxSize()
             .background(MySecondaryColor)
     ) {
-        SearchBoxComponent(username, title)
-        AnnounceList(notificacionesFiltradas, onClickComment)
-    }
-
-}
-
-
-@Composable
-fun AnnounceList(
-    announcements: List<PostEntity>,
-    onClickComment: (String) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        items(announcements) { announce ->
-            MessageCard(announce, onClickComment)
-        }
-
-    }
-}
-
-
-@Composable
-fun MessageCard(
-    announce: PostEntity,
-    onClickComment: (String) -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp)
-            .padding(8.dp)
-            .clickable(onClick = { onClickComment(announce.id.toString()) }),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MySurfaceColor)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
+        MuroHeader(
+            usuario = usuario,
+            texto = filtro.texto,
+            onTexto = viewModel::onTexto,
+            accion = { BotonBorradores(borradores, onBorradores) }
+        )
+        FiltrosChips(
+            filtro = filtro,
+            cursos = cursos,
+            onCurso = viewModel::onCurso,
+            onTipo = viewModel::onTipo,
+            onPrioridad = viewModel::onPrioridad,
+            onArchivados = viewModel::onArchivados
+        )
+        when (val estado = uiState) {
+            MuroUiState.Cargando -> CargandoMuro()
+            is MuroUiState.Error -> EstadoMuro(
+                icono = IconosEstado.error,
+                titulo = "No se pudo cargar el muro",
+                detalle = estado.mensaje,
+                accionPrincipal = "Reintentar" to viewModel::recargar
             )
-            {
+            MuroUiState.MuroVacio -> EstadoMuro(
+                icono = IconosEstado.vacio,
+                titulo = "Aún no hay anuncios",
+                detalle = "Publica el primero con «Nuevo anuncio» para avisar a todo un curso o a un solo estudiante."
+            )
+            is MuroUiState.SinResultados -> EstadoMuro(
+                icono = IconosEstado.sinResultados,
+                titulo = estado.titulo,
+                detalle = estado.detalle,
+                accionPrincipal = if (estado.puedeQuitarFiltros) "Quitar filtros" to {
+                    viewModel.onTexto(""); viewModel.quitarFiltros()
+                } else null,
+                accionSecundaria = if (estado.puedeBuscarEnArchivados) {
+                    "Buscar también en archivados" to viewModel::buscarEnArchivados
+                } else null
+            )
+            is MuroUiState.Contenido -> ListaAnuncios(estado, acciones, resaltado, filtro)
+        }
+    }
+}
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ListaAnuncios(
+    estado: MuroUiState.Contenido,
+    acciones: AccionesAnuncio,
+    resaltado: Int?,
+    filtro: FiltroMuro
+) {
+    val listState = rememberLazyListState()
+    // Al cambiar la búsqueda o los filtros se vuelve al inicio de los resultados.
+    LaunchedEffect(filtro) { listState.scrollToItem(0) }
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        // 88 dp abajo: el FAB extendido nunca tapa la última tarjeta (problema 6).
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 88.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        estado.resumen?.let { texto ->
+            item(key = "resumen") {
+                Text(texto, style = AuText.LabelLarge, color = MyPrimaryColor)
+            }
+        }
+        estado.avisoArchivados?.let { texto ->
+            item(key = "aviso") {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.Archive, null, tint = MyMutedForegroundColor, modifier = Modifier.size(18.dp))
+                    Text(texto, style = AuText.Caption, color = MyMutedForegroundColor, modifier = Modifier.padding(start = 8.dp))
+                }
+            }
+        }
+        estado.grupos.forEach { grupo ->
+            grupo.grupo?.let { g ->
+                stickyHeader(key = "grupo-${g.name}") {
                     Text(
-                        text = announce.courseCode,
+                        g.titulo,
+                        style = AuText.Label,
                         color = MyMutedForegroundColor,
-                        fontSize = 16.sp,
                         modifier = Modifier
-                            .background(
-                                color = MyMutedColor,
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.Person,
-                        contentDescription = "",
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    Text(
-                        text = if (announce.isPrivate) "Privado" else "Público",
-                        color = MyMutedForegroundColor,
-                        fontSize = 16.sp,
+                            .fillMaxWidth()
+                            .background(MySecondaryColor)
+                            .padding(top = 6.dp, bottom = 2.dp)
                     )
                 }
-                Text(
-                    text = announce.date,
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
+            }
+            items(grupo.anuncios, key = { it.post.id }) { anuncio ->
+                AnuncioCard(
+                    anuncio = anuncio,
+                    acciones = acciones,
+                    resaltada = anuncio.post.id == resaltado
                 )
             }
-
-            Text(
-                text = announce.title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = announce.content,
-                fontSize = 18.sp
-            )
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(MyBorderColor)
-            )
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            )
-            {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    UserInitialCircle(announce.authorName ?: "X")
-                    Text(
-                        text = announce.authorName ?: "Desconocido",
-                        color = MyMutedForegroundColor,
-                        fontSize = 16.sp,
-                        maxLines = Int.MAX_VALUE,
-                        overflow = TextOverflow.Clip,
-                        softWrap = true
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_chat_bubble_outline_24),
-                        contentDescription = "",
-                    )
-                    Text(
-                        text = announce.countComments.toString(),
-                        color = MyPrimaryColor,
-                        fontSize = 16.sp,
-                    )
-                    Text(
-                        text = "Comentarios",
-                        color = MyPrimaryColor,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
-
-            }
-
         }
-
     }
 }

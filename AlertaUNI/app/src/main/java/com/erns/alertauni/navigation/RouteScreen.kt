@@ -11,4 +11,11 @@ sealed class RouteScreen(val route: String) {
     object Profile : RouteScreen("profile")
     object Comment : RouteScreen("comment")
     object ContactComment : RouteScreen("ContactComment")
+    /** Formulario único; argumentos opcionales para el atajo desde Contactos. */
+    object NuevoAnuncio : RouteScreen("nuevo_anuncio") {
+        const val ARGS = "?cursoId={cursoId}&estudianteId={estudianteId}&borradorId={borradorId}"
+        fun crear(cursoId: String? = null, estudianteId: String? = null, borradorId: Long? = null) =
+            route + "?cursoId=${cursoId ?: ""}&estudianteId=${estudianteId ?: ""}&borradorId=${borradorId ?: ""}"
+    }
+    object Borradores : RouteScreen("borradores")
 }

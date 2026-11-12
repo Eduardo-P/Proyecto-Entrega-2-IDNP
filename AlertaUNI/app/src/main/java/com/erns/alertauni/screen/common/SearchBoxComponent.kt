@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -40,8 +41,9 @@ fun SearchBoxComponent(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
             .background(MyPrimaryColor)
+            .statusBarsPadding() // el azul se extiende detrás de la barra de estado
+            .height(100.dp)
             .padding(10.dp)
     ) {
         if (showSearch.value) {

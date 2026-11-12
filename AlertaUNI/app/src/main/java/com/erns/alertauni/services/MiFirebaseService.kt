@@ -82,7 +82,8 @@ class MiFirebaseService : FirebaseMessagingService() {
     }
 
     private fun saveNotificationToDatabase(cursoId: String, mensaje: String, fechaHora: String) {
-        val db = Room.databaseBuilder(this, AppDatabase::class.java, "notificaciones-db").build()
+        // Usa la instancia compartida (con migraciones) en lugar de crear otra base sin ellas.
+        val db = AppDatabase.getInstance(this)
         val dao = db.notificacionDao()
 
         val notificacionEntity = NotificacionEntity(

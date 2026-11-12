@@ -1,0 +1,8 @@
+# Copia estas claves en local.properties (no se sube a git).
+# Credenciales del backend real (pidelas al docente o al equipo):
+supabase.url=https://TU-PROYECTO.supabase.co
+supabase.key=TU_SUPABASE_ANON_KEY
+google.webClientId=TU_CLIENT_ID.apps.googleusercontent.com
+
+# SIMULADO: modo demo sin backend (solo en debug). true = entra con cuentas demo y datos locales.
+alertauni.demo=true

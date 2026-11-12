@@ -74,7 +74,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 }
             )
         ) {
-            PostCommentScreen()
+            PostCommentScreen(onVolver = { navController.popBackStack() })
         }
 
         composable(RouteScreen.Profile.route) {

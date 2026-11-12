@@ -1,5 +1,6 @@
 package com.erns.alertauni
 
+import com.erns.alertauni.BuildConfig
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -41,12 +42,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AlertaUNITheme {
-                MainAppNavigation()
+                // Antes se invocaba MainAppNavigation() dos veces (fuera y dentro del Scaffold),
+                // lo que creaba dos NavHost superpuestos.
+                // Sin relleno superior fijo: cada cabecera pinta su fondo detrás de la barra
+                // de estado (statusBarsPadding) y la NavigationBar maneja la barra de navegación.
                 Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(top = 24.dp)
+                    modifier = Modifier.fillMaxSize()
                 ) { padding ->
                         MainAppNavigation()
                 }
@@ -61,8 +62,8 @@ class MainActivity : ComponentActivity() {
 
     private suspend fun test() {
         // 1. Inicializar el cliente
-        var supabaseKey = "supabase_key"
-        var supabaseUrl = "https://myurl.supabase.co"
+        var supabaseKey = BuildConfig.SUPABASE_KEY
+        var supabaseUrl = BuildConfig.SUPABASE_URL
         val supabase = createSupabaseClient(supabaseUrl, supabaseKey) {
             httpEngine = io.ktor.client.engine.okhttp.OkHttp.create()
             install(Postgrest)

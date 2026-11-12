@@ -1,5 +1,6 @@
 package com.erns.alertauni.screen.login
 
+import com.erns.alertauni.BuildConfig
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -9,6 +10,7 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.erns.alertauni.data.demo.DemoData
 import com.erns.alertauni.data.model.FCMTokenMessage
 import com.erns.alertauni.data.model.GoogleAccountRequest
 import com.erns.alertauni.data.repository.AuthRepository
@@ -58,6 +60,22 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    /**
+     * SIMULADO: inicia sesión con una cuenta de docente demo, sin Google ni Supabase.
+     * Solo existe en debug con BuildConfig.DEMO_MODE; guarda los mismos datos de sesión
+     * que el login real (correo, nombre y tipo de usuario) para que el resto de la app funcione igual.
+     */
+    fun startDemoSession(cuenta: DemoData.CuentaDemo) {
+        if (!BuildConfig.DEMO_MODE) return
+        viewModelScope.launch {
+            dataStoreHelper.saveEmail(cuenta.email)
+            dataStoreHelper.setFirstname(cuenta.nombre)
+            dataStoreHelper.setSurname(cuenta.apellido)
+            dataStoreHelper.setUserType("PROFESSOR")
+            _authState.value = AuthState.Authenticated
+        }
+    }
+
     fun startSessionWithGoogle(context: Context) {
         Log.d(TAG, "Iniciando sesión con Google...")
         val credentialManager = CredentialManager.create(context)
@@ -65,7 +83,7 @@ class LoginViewModel @Inject constructor(
         // 1. Configurar las opciones de Google ID
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false) // <-- ¡Cámbialo a FALSE para que no falle en el emulador!
-            .setServerClientId("12345678-abc.apps.googleusercontent.com")
+            .setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)
             .setAutoSelectEnabled(false) // Evita que parpadee seleccionando una cuenta automáticamente si hay varias
             .build()
 

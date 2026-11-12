@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,14 @@ plugins {
     alias(libs.plugins.dagger.hilt)
     id("org.jetbrains.kotlin.plugin.serialization")
 }
+
+// Credenciales y opciones locales: se leen de local.properties (no se sube a git).
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun localProp(key: String, default: String = ""): String =
+    localProps.getProperty(key) ?: default
 
 android {
     namespace = "com.erns.alertauni"
@@ -20,10 +30,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${localProp("supabase.url", "https://myurl.supabase.co")}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${localProp("supabase.key", "supabase_key")}\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${localProp("google.webClientId", "12345678-abc.apps.googleusercontent.com")}\"")
     }
 
     buildTypes {
+        debug {
+            // SIMULADO: modo demo sin backend (solo debug). Se activa con alertauni.demo=true en local.properties.
+            buildConfigField("boolean", "DEMO_MODE", localProp("alertauni.demo", "false"))
+        }
         release {
+            buildConfigField("boolean", "DEMO_MODE", "false")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -38,8 +57,17 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    sourceSets {
+        // Robolectric lee los esquemas de Room desde los assets de la variante debug
+        // (solo afecta al APK de depuración; son unos pocos KB).
+        getByName("debug").assets.srcDirs("$projectDir/schemas")
+    }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     sourceSets {
         getByName("main") {
@@ -75,6 +103,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    // Íconos Material del diseño (grupo, candado, bandera, reloj, archivo, chat)
+    implementation("androidx.compose.material:material-icons-extended")
 
     implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -104,6 +134,12 @@ dependencies {
     implementation(libs.gson)
 
     testImplementation(libs.junit)
+    // Pruebas locales (JVM) de Room y ViewModels con Robolectric
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("androidx.test:core-ktx:1.6.1")
+    testImplementation(libs.androidx.junit)
+    testImplementation("androidx.room:room-testing:2.7.0-alpha11")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -114,6 +150,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     implementation("com.google.zxing:core:3.5.2")
+}
+
+// Exporta el esquema de Room para versionarlo y probar migraciones
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 configurations.all {

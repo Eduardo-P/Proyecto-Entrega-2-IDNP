@@ -31,6 +31,7 @@ También se agregaron borradores locales con Room y un **modo demo** para probar
 **Documentación en `Docs/`:**
 - [`DISENO.md`](Docs/DISENO.md): colores y tipografías tomados de Figma, qué composable implementa cada pantalla y diferencias con Figma.
 - [`PRUEBAS.md`](Docs/PRUEBAS.md): las 53 pruebas de funcionamiento con sus capturas.
+- [`PRUEBAS_TAMANOS_PANTALLA.md`](Docs/PRUEBAS_TAMANOS_PANTALLA.md): pruebas en pantallas pequeña, mediana y grande, en vertical y horizontal.
 - [`PRUEBAS_USABILIDAD.md`](Docs/PRUEBAS_USABILIDAD.md): protocolo de las pruebas de usabilidad.
 - [`HOJA_RESULTADOS_USABILIDAD.md`](Docs/HOJA_RESULTADOS_USABILIDAD.md): resultados de las pruebas de usabilidad.
 
@@ -282,6 +283,7 @@ Durante estas pruebas apareció un problema: al buscar, la línea «N resultados
 | El buscador de la hoja de estudiantes era blanco sobre blanco | Color de fondo propio para ese campo |
 | Concordancia: «1 comentarios», «1 anuncio archivado · no aparecen» | Textos en singular y plural |
 | Al buscar, la línea «N resultados…» quedaba fuera de la pantalla | La lista vuelve al inicio cuando aparece esa línea |
+| En un teléfono pequeño en horizontal, el muro no mostraba ningún anuncio: cabecera, filtros y barra inferior ocupaban toda la altura ([detalle](Docs/PRUEBAS_TAMANOS_PANTALLA.md)) | Con poca altura, navegación en un riel lateral y cabecera que se oculta al desplazar. En vertical no cambia nada |
 
 **Hallazgos de usabilidad** (detalle en la sección 6 de la [hoja de resultados](Docs/HOJA_RESULTADOS_USABILIDAD.md)):
 

@@ -12,6 +12,12 @@ También se agregaron borradores locales con Room y un **modo demo** para probar
 
 **Diseño en Figma** (maquetas del examen y pantallas finales): [IDNP-2 en Figma](https://www.figma.com/design/6NYZzFku0Sk34sPGks41Ik/IDNP-2?node-id=0-1&t=KaXpnx9oZRcCZbzC-1)
 
+**Documentación en `Docs/`:**
+- [`DISENO.md`](Docs/DISENO.md): colores y tipografías tomados de Figma, qué composable implementa cada pantalla y diferencias con Figma.
+- [`PRUEBAS.md`](Docs/PRUEBAS.md): las 53 pruebas de funcionamiento con sus capturas.
+- [`PRUEBAS_USABILIDAD.md`](Docs/PRUEBAS_USABILIDAD.md): protocolo de las pruebas de usabilidad.
+- [`HOJA_RESULTADOS_USABILIDAD.md`](Docs/HOJA_RESULTADOS_USABILIDAD.md): resultados de las pruebas de usabilidad.
+
 ---
 
 ## Análisis de aplicaciones similares

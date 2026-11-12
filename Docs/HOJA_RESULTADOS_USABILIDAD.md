@@ -1,6 +1,6 @@
 # Resultados de las pruebas de usabilidad (Tarea 4-B)
 
-Pruebas con **2 personas ajenas al equipo**, sin explicarles la interfaz. App en **modo demo** (datos simulados), cuenta Docente Demo A.
+Pruebas con **2 personas ajenas al equipo**, sin explicarles la interfaz. App en **modo demo** (datos simulados), cuenta Docente Demo A. Protocolo (consentimiento, guion y criterios): [`PRUEBAS_USABILIDAD.md`](PRUEBAS_USABILIDAD.md).
 
 **Qué se midió:** si completaban cada tarea, el tiempo, los errores y si pedían ayuda. Tras cada tarea respondieron la pregunta SEQ y, al final, el cuestionario SUS y sus comentarios generales.
 

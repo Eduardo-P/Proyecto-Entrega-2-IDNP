@@ -10,6 +10,14 @@ Implementación en **Jetpack Compose** de la propuesta de diseño del Examen 2 p
 
 También se agregaron borradores locales con Room y un **modo demo** para probar la app sin backend.
 
+**Diseño en Figma** (maquetas del examen y pantallas finales): [IDNP-2 en Figma](https://www.figma.com/design/6NYZzFku0Sk34sPGks41Ik/IDNP-2?node-id=0-1&t=KaXpnx9oZRcCZbzC-1)
+
+**Documentación en `Docs/`:**
+- [`DISENO.md`](Docs/DISENO.md): colores y tipografías tomados de Figma, qué composable implementa cada pantalla y diferencias con Figma.
+- [`PRUEBAS.md`](Docs/PRUEBAS.md): las 53 pruebas de funcionamiento con sus capturas.
+- [`PRUEBAS_USABILIDAD.md`](Docs/PRUEBAS_USABILIDAD.md): protocolo de las pruebas de usabilidad.
+- [`HOJA_RESULTADOS_USABILIDAD.md`](Docs/HOJA_RESULTADOS_USABILIDAD.md): resultados de las pruebas de usabilidad.
+
 ---
 
 ## Análisis de aplicaciones similares
@@ -39,13 +47,13 @@ Antes de implementar, se revisó cómo resuelven los anuncios tres plataformas e
 
 ## Funcionalidades y comparativa antes / después
 
-Las capturas «antes» son de la interfaz original (vistas previas de Compose del código original con datos de ejemplo). Los números corresponden a los problemas del informe del examen. Las capturas «después» son de la app en el emulador, en modo demo.
+Las capturas «antes» (`Docs/capturas/antes/`) son de la interfaz original: vistas previas de Compose del código original con datos de ejemplo. Los números corresponden a los problemas del informe del examen. Las capturas «después» (`Docs/capturas/despues/`) son de la app actual en el emulador, en modo demo.
 
 ### Muro: organización y presentación
 
 | Antes | Después |
 |---|---|
-| <img src="Docs/capturas/antes/cap01_muro_actual.png" width="260"> | <img src="Docs/capturas/cap01_muro_nuevo.png" width="260"> |
+| <img src="Docs/capturas/antes/cap01_muro_actual.png" width="260"> | <img src="Docs/capturas/despues/cap01_muro_nuevo.png" width="260"> |
 
 **Mejora:**
 - **Tarjeta:**
@@ -61,7 +69,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes | Después |
 |---|---|
-| <img src="Docs/capturas/antes/cap02_fab_superpuesto.png" width="260"> | <img src="Docs/capturas/cap05_fin_lista.png" width="260"> |
+| <img src="Docs/capturas/antes/cap02_fab_superpuesto.png" width="260"> | <img src="Docs/capturas/despues/cap05_fin_lista.png" width="260"> |
 
 **Mejora:** el botón flotante ahora es extendido y tiene etiqueta. La lista reserva 88 dp al final (`contentPadding`), así que la última tarjeta se ve completa.
 
@@ -69,7 +77,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes | Después: búsqueda | Después: sin resultados |
 |---|---|---|
-| <img src="Docs/capturas/antes/cap04_busqueda_actual.png" width="220"> | <img src="Docs/capturas/cap02_busqueda.png" width="220"> | <img src="Docs/capturas/cap03_sin_resultados.png" width="220"> |
+| <img src="Docs/capturas/antes/cap04_busqueda_actual.png" width="220"> | <img src="Docs/capturas/despues/cap02_busqueda.png" width="220"> | <img src="Docs/capturas/despues/cap03_sin_resultados.png" width="220"> |
 
 **Mejora:**
 - **Campo de búsqueda:**
@@ -84,11 +92,11 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Antes: público | Antes: privado (otra pestaña) | Después: formulario único |
 |---|---|---|
-| <img src="Docs/capturas/antes/cap05_crear_anuncio_actual.png" width="220"> | <img src="Docs/capturas/antes/cap06_privado_contactos_actual.png" width="220"> | <img src="Docs/capturas/cap10_formulario_privado.png" width="220"> |
+| <img src="Docs/capturas/antes/cap05_crear_anuncio_actual.png" width="220"> | <img src="Docs/capturas/antes/cap06_privado_contactos_actual.png" width="220"> | <img src="Docs/capturas/despues/cap10_formulario_privado.png" width="220"> |
 
 | Elegir estudiante | Confirmación (solo privados) | Publicado |
 |---|---|---|
-| <img src="Docs/capturas/cap09_selector_estudiante.png" width="220"> | <img src="Docs/capturas/cap11_confirmacion_privado.png" width="220"> | <img src="Docs/capturas/cap12_publicado.png" width="220"> |
+| <img src="Docs/capturas/despues/cap09_selector_estudiante.png" width="220"> | <img src="Docs/capturas/despues/cap11_confirmacion_privado.png" width="220"> | <img src="Docs/capturas/despues/cap12_publicado.png" width="220"> |
 
 **Mejora:**
 - **Un solo formulario.** Su primera pregunta es *¿A quién va dirigido?* y se responde con un `SingleChoiceSegmentedButtonRow`.
@@ -106,7 +114,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Validación en línea |
 |---|
-| <img src="Docs/capturas/cap08_validacion.png" width="260"> |
+| <img src="Docs/capturas/despues/cap08_validacion.png" width="260"> |
 
 **Mejora:** antes, publicar con campos vacíos no hacía nada. Ahora cada campo muestra su error (`isError` + `supportingText`) y el resumen se vuelve rojo e indica qué falta.
 
@@ -114,7 +122,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Menú ⋮ | Archivados | Antes: comentarios | Después: comentarios cerrados |
 |---|---|---|---|
-| <img src="Docs/capturas/cap06_menu_acciones.png" width="200"> | <img src="Docs/capturas/cap04_archivados.png" width="200"> | <img src="Docs/capturas/antes/cap07_comentarios_actual.png" width="200"> | <img src="Docs/capturas/cap07_comentarios_cerrados.png" width="200"> |
+| <img src="Docs/capturas/despues/cap06_menu_acciones.png" width="200"> | <img src="Docs/capturas/despues/cap04_archivados.png" width="200"> | <img src="Docs/capturas/antes/cap07_comentarios_actual.png" width="200"> | <img src="Docs/capturas/despues/cap07_comentarios_cerrados.png" width="200"> |
 
 **Mejora:**
 - **Menú ⋮:** «Ver comentarios», «Deshabilitar/Habilitar comentarios» y «Archivar».
@@ -129,7 +137,7 @@ Las capturas «antes» son de la interfaz original (vistas previas de Compose de
 
 | Guardar al salir | Lista de borradores | Formulario público |
 |---|---|---|
-| <img src="Docs/capturas/cap14_salir_con_cambios.png" width="220"> | <img src="Docs/capturas/cap15_borradores.png" width="220"> | <img src="Docs/capturas/cap13_formulario_publico.png" width="220"> |
+| <img src="Docs/capturas/despues/cap14_salir_con_cambios.png" width="220"> | <img src="Docs/capturas/despues/cap15_borradores.png" width="220"> | <img src="Docs/capturas/despues/cap13_formulario_publico.png" width="220"> |
 
 **Mejora:**
 - **Guardar:** «Guardar borrador» está siempre en la barra superior del formulario. Si se sale con cambios, la app pregunta *Guardar borrador / Descartar / Seguir editando*.
@@ -195,16 +203,32 @@ data/local/AppDatabase (Room v5)  → notificaciones (original) · post_extra ·
 | Tipo | Resultado |
 |---|---|
 | Pruebas automáticas (`./gradlew testDebugUnitTest`) | **21 / 21 aprobadas**: búsqueda sin tildes y resaltado, filtros, fechas, migraciones 2→5, variedad de los datos de prueba y borradores (guardar, recuperar, persistencia, aislamiento entre cuentas, deshacer) |
-| Casos manuales en el emulador | **27 aprobados**: muro, búsqueda, filtros, archivar/deshacer/restaurar, menú, comentarios cerrados y habilitar, validación, selector de estudiante, confirmación, publicación pública y privada, atajo desde Contactos, borradores (guardar, salir con cambios, continuar, persistencia tras reiniciar, aislamiento A/B) |
+| Casos nuevos, manuales en el emulador | **28 aprobados**: muro, búsqueda, filtros, archivar/deshacer/restaurar, menú, comentarios cerrados y habilitar, validación, selector de estudiante, cambio de curso, confirmación, publicación pública y privada, atajo desde Contactos, borradores (guardar, salir con cambios, continuar, persistencia tras reiniciar, aislamiento A/B, publicar) |
 | Regresión en el emulador | **4 aprobados**: navegación inferior, comentarios, Contactos y Cursos |
-| Pendiente con backend real | Login con Google, publicar/listar contra Supabase, notificaciones push, inscripción de estudiantes y vista de estudiante (sin credenciales en este entorno) |
 
-**Usabilidad (≥ 2 personas ajenas al equipo).** *Pendiente:* los resultados reales se agregarán aquí al aplicar la prueba. Habrá tres tareas:
-1. Encontrar «Práctica calificada 2».
-2. Preparar un anuncio privado para un estudiante.
-3. Guardar un borrador y recuperarlo.
+**Detalle de cada prueba con sus capturas:** [`Docs/PRUEBAS.md`](Docs/PRUEBAS.md). Las 51 capturas están en `Docs/capturas/pruebas/`.
 
-Se medirá si completan cada tarea, el tiempo, los errores, si piden ayuda y, opcionalmente, SEQ y SUS.
+Durante estas pruebas apareció un problema: al buscar, la línea «N resultados…» quedaba fuera de la pantalla. Se corrigió y se volvió a probar (caso F04).
+
+**Usabilidad (Tarea 4-B).** Se probó con **2 personas ajenas al equipo** (24 y 47 años), sin explicarles la interfaz, en modo demo. Tareas:
+1. Encontrar el anuncio «Primera práctica calificada».
+2. Enviar un anuncio privado a Luis Huamán Ccama de INF-01. En ese curso hay otro estudiante llamado Luis.
+3. Empezar un anuncio público, guardarlo como borrador, recuperarlo y publicarlo.
+
+| Tarea | Completadas sin ayuda | Tiempo promedio | Errores | SEQ promedio (1–7) |
+|---|---|---|---|---|
+| 1. Buscar | 2 / 2 | 0:20 | 0 | 6,0 |
+| 2. Anuncio privado | 2 / 2 | 1:02 | 0 | 7,0 |
+| 3. Borrador | 2 / 2 | 1:00 | 0 | 6,5 |
+
+- **SUS:** 100 en ambos participantes. Con 2 personas el número es solo indicativo, y una puntuación máxima es poco habitual, así que pesan más las observaciones.
+- **Criterios de éxito definidos en el examen:** se cumplen los cuatro (≥ 90 % sin ayuda, 0 envíos al destinatario equivocado, SEQ ≥ 5,5 y SUS ≥ 68).
+- **Observaciones:**
+  - Nadie se equivocó de destinatario.
+  - El botón «Borradores» se encontró sin dificultad.
+  - Uno de los participantes (P2) no vio el buscador al principio y buscó desplazando la lista; luego lo encontró («Acá hay un buscador, es más fácil así»).
+
+**Detalle completo** (participantes, tareas, tiempos, citas, SUS por ítem y hallazgos): [`Docs/HOJA_RESULTADOS_USABILIDAD.md`](Docs/HOJA_RESULTADOS_USABILIDAD.md).
 
 ## Decisiones del diseño del examen
 
@@ -231,7 +255,28 @@ Se medirá si completan cada tarea, el tiempo, los errores, si piden ayuda y, op
 6. **El tema usa siempre la paleta de la marca** (`dynamicColor = false`, modo claro): el color dinámico pintaba el FAB y la barra con el fondo de pantalla.
 7. **La pantalla de comentarios no tiene el menú ⋮** que había en Figma; habilitar o deshabilitar se hace desde el aviso o desde el menú de la tarjeta.
 
-Los cambios por resultados de usabilidad se documentarán aquí cuando se hagan las pruebas.
+## Evaluación y mejoras (Tarea 4-C)
+
+**Problemas encontrados en las pruebas de funcionamiento y corregidos:**
+
+| Problema | Corrección |
+|---|---|
+| Las fechas se mostraban en UTC (`14:15` en vez de `09:15`) | `FechaBackend` las convierte a hora de Perú |
+| Los estudiantes con tilde se ordenaban mal («Cáceres» después de «Condori») | Orden con `Collator` en español |
+| El buscador de la hoja de estudiantes era blanco sobre blanco | Color de fondo propio para ese campo |
+| Concordancia: «1 comentarios», «1 anuncio archivado · no aparecen» | Textos en singular y plural |
+| Al buscar, la línea «N resultados…» quedaba fuera de la pantalla | La lista vuelve al inicio cuando aparece esa línea |
+
+**Hallazgos de usabilidad** (detalle en la sección 6 de la [hoja de resultados](Docs/HOJA_RESULTADOS_USABILIDAD.md)):
+
+| Hallazgo | Severidad | Decisión |
+|---|---|---|
+| P2 no notó el buscador a la primera (tardó 0:25 frente a 0:15) | Baja: completó sin ayuda | Se mantiene el buscador fijo en la cabecera. Lo encontró por su cuenta en segundos, y el evaluador lo atribuye a su poca experiencia con apps parecidas. |
+| P2 tardó más en los formularios (1:19 y 1:20 frente a 0:45 y 0:40), sin errores | Baja | Sin cambios: leyó cada elemento con calma y no tuvo dudas |
+
+Las decisiones del examen que más se validaron fueron:
+- **El selector de estudiante con búsqueda, el resumen «Lo recibirá solo: …» y la confirmación:** ningún envío fue al «Luis» equivocado.
+- **El botón «Borradores» con texto y contador:** se encontró sin dificultad.
 
 ## Cómo compilar y ejecutar
 

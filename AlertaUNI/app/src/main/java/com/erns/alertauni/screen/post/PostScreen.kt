@@ -151,7 +151,9 @@ private fun ListaAnuncios(
 ) {
     val listState = rememberLazyListState()
     // Al cambiar la búsqueda o los filtros se vuelve al inicio de los resultados.
-    LaunchedEffect(filtro) { listState.scrollToItem(0) }
+    // También cuando aparece la línea «N resultados…»: llega tras el debounce y, como
+    // se inserta encima de la primera tarjeta visible, la lista la dejaba fuera de la vista.
+    LaunchedEffect(filtro, estado.resumen != null) { listState.scrollToItem(0) }
 
     LazyColumn(
         state = listState,
